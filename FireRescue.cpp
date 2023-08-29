@@ -27,6 +27,7 @@ FireRescue::FireRescue(QWidget *parent)
     poi11.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi11.png");
     poi12.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi12.png");
     poi13.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoiBlank.png");
+    square.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
 
     Board m_theBoard = Board();
     m_MapArray = MapCell::getMapArray();
@@ -331,7 +332,8 @@ void FireRescue::checkBreach(int location)
 
 void FireRescue::explosion(int location)
 { 
-    //MapCell* cell = m_theBoard.GetCell(location);
+    MapCell* cell = m_theBoard.GetCell(location);
+    cell->setHotSpot(true);
     std::vector<MapCell*> nearCells = adjacentCells(location); 
     for (int i=0; i<4; i++)
     {
@@ -342,7 +344,7 @@ void FireRescue::explosion(int location)
 
                 if(barrier > 0 && barrier < 3)
                 {
-                    m_MapArray[base + baseOffset[i]] = barrier -1;
+                    damageWall(i,location, base);
                 }
 
                 barrier = m_MapArray[base + baseOffset[i]]; 
@@ -373,7 +375,7 @@ void FireRescue::shockWave(int direction, int location)
     int barrier = m_MapArray[base + baseOffset[direction]];     // get the current cell's wall/door value in this direction
     if(barrier > 0 && barrier < 3)
     {
-        m_MapArray[base + baseOffset[direction]] = barrier -1;
+        damageWall(direction, location, base);
     }
 
     barrier = m_MapArray[base + baseOffset[direction]]; 
@@ -395,6 +397,30 @@ void FireRescue::shockWave(int direction, int location)
             placeFire(nearCells[direction]->getID());
         }               
     }  
+}
+
+
+void FireRescue::damageWall(int direction, int location, int base)
+{
+    wallDamage ++;
+    if (wallDamage > 21){std::cout << "GAME OVER" << "\n";}
+    int barrier = m_MapArray[base + baseOffset[direction]];
+    m_MapArray[base + baseOffset[direction]] = barrier - 1;
+    int row = location / 10;
+    int col = location % 10;
+    if (barrier == 1)
+    {
+        damageSquare[wallDamage] = new QLabel(); 
+        damageSquare[wallDamage]->setObjectName("damageSquare"+QString::number(wallDamage));
+        damageSquare[wallDamage]->setPixmap(poi0);
+        damageSquare[wallDamage]->setGeometry(QRect(392+(col*127), 65+(row*125), 60, 60));
+        ui->label->setText(QString::number(wallDamage));
+    }
+    else
+    {
+        ui->label->setText(QString::number(wallDamage));
+    }
+
 }
 
 

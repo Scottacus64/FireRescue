@@ -57,10 +57,11 @@ public:
         label->setText("Testing");
 
        
-        for (int i = 0; i < 80; ++i) 
+        /*for (int i = 0; i < 80; ++i) 
         {
             centerDisk[i] = new QLabel();  // Allocate memory for each QLabel
-        }
+        }*/
+
         QPixmap fire("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire.png");
         QPixmap smoke("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke.png");
         QPixmap hazmat("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHazmat.png");

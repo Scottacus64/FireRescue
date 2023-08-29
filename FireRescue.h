@@ -4,6 +4,7 @@
 #include "dice.h"
 #include "ui_fr.h"
 #include "Board.h"
+#include <QtWidgets/QLabel>
 
 
 QT_BEGIN_NAMESPACE
@@ -30,10 +31,13 @@ public:
     int  baseValue(int position);
     int  getOthersideOfWall(int direction, int location);
     void shockWave(int direction, int location);
+    void damageWall(int direction, int location, int base);
 
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
     int  baseOffset[4]= {0,10,11,21};
+    int  wallDamage = 0;
     int* m_MapArray;
+    QLabel *damageSquare[40];
 
 private:
     Ui::FireRescue *ui;
@@ -58,6 +62,7 @@ private:
     QPixmap poi11;
     QPixmap poi12;
     QPixmap poi13;
+    QPixmap square;
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;
