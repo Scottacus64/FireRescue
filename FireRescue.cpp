@@ -348,7 +348,7 @@ void FireRescue::explosion(int location)
 
                 barrier = m_MapArray[base + baseOffset[i]]; 
 
-                if (barrier >2 && barrier < 9)                      // if there is a door blow it off its hinges
+                if (barrier > 2 && barrier < 9)                      // if there is a door blow it off its hinges
                 {
                     barrier = 0;
                     m_MapArray[base + baseOffset[i]] = 0; 
@@ -361,10 +361,39 @@ void FireRescue::explosion(int location)
                 else if(nearCells[i]->getFire() == false and barrier == 0)
                 {
                     placeFire(nearCells[i]->getID());
-                }
-                
+                }               
             }
     }
+}
+
+void FireRescue::shockWave(int direction, int location)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    std::vector<MapCell*> nearCells = adjacentCells(location); 
+    int base = baseValue(location);
+    int barrier = m_MapArray[base + baseOffset[direction]];     // get the current cell's wall/door value in this direction
+    if(barrier > 0 && barrier < 3)
+    {
+        m_MapArray[base + baseOffset[direction]] = barrier -1;
+    }
+
+    barrier = m_MapArray[base + baseOffset[direction]]; 
+
+    if (barrier > 2 && barrier < 9)                      // if there is a door blow it off its hinges
+    {
+        barrier = 0;
+        m_MapArray[base + baseOffset[direction]] = 0; 
+    }   
+
+    if (nearCells[direction]->getFire() == true && barrier == 0 )
+    {
+        shockWave(direction,nearCells[direction]->getID()) ;                               //recursive call to place fire
+    }
+    else if(nearCells[direction]->getFire() == false and barrier == 0)
+    {
+        placeFire(nearCells[direction]->getID());
+    }               
+            
 }
 
 
@@ -416,7 +445,3 @@ int FireRescue::getOthersideOfWall(int direction, int location)
     return otherSideOfDoor;
 }
 
-void FireRescue::shockWave(int direction, int location)
-{
-
-}

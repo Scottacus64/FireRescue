@@ -35,11 +35,13 @@ MapCell::~MapCell()
 
 
 bool MapCell::getSmoke()
-{ return smoke;}
+{if (this != nullptr) {return smoke;}}
 
 
 bool MapCell::getFire()
-{return fire;}
+{
+    if (this != nullptr){return fire;}
+}
 
 
 bool MapCell::getHazmat()
