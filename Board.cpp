@@ -18,6 +18,9 @@ Board::~Board()
 
 MapCell* Board::GetCell(int index) 
 {
-    return &m_theBoard[index];
+   if( index>-1 && index<80)
+   {return &m_theBoard[index];} 
+   else 
+   {return nullptr;}
 }
 

@@ -330,9 +330,8 @@ void FireRescue::checkBreach(int location)
 }
 
 void FireRescue::explosion(int location)
-{
-    
-    MapCell* cell = m_theBoard.GetCell(location);
+{ 
+    //MapCell* cell = m_theBoard.GetCell(location);
     std::vector<MapCell*> nearCells = adjacentCells(location); 
     for (int i=0; i<4; i++)
     {
@@ -368,7 +367,7 @@ void FireRescue::explosion(int location)
 
 void FireRescue::shockWave(int direction, int location)
 {
-    MapCell* cell = m_theBoard.GetCell(location);
+    //MapCell* cell = m_theBoard.GetCell(location);
     std::vector<MapCell*> nearCells = adjacentCells(location); 
     int base = baseValue(location);
     int barrier = m_MapArray[base + baseOffset[direction]];     // get the current cell's wall/door value in this direction
@@ -385,26 +384,30 @@ void FireRescue::shockWave(int direction, int location)
         m_MapArray[base + baseOffset[direction]] = 0; 
     }   
 
-    if (nearCells[direction]->getFire() == true && barrier == 0 )
+    if (barrier < 9)
     {
-        shockWave(direction,nearCells[direction]->getID()) ;                               //recursive call to place fire
-    }
-    else if(nearCells[direction]->getFire() == false and barrier == 0)
-    {
-        placeFire(nearCells[direction]->getID());
-    }               
-            
+        if (nearCells[direction]->getFire() == true && barrier == 0 )
+        {
+            shockWave(direction,nearCells[direction]->getID()) ;                               //recursive call to place fire
+        }
+        else if(nearCells[direction]->getFire() == false and barrier == 0)
+        {
+            placeFire(nearCells[direction]->getID());
+        }               
+    }  
 }
 
 
 std::vector<MapCell*> FireRescue::adjacentCells(int location)
 {
-    MapCell* cell = m_theBoard.GetCell(location);
+   // MapCell* cell = m_theBoard.GetCell(location);
     std::vector<MapCell*> nextCells(4, nullptr);
     nextCells[0] = (location-10 < 80 && location-10 > -1) ? m_theBoard.GetCell(location-10) : nullptr;      // if the cell above is not on map
     nextCells[1] = (location%10 != 0) ? m_theBoard.GetCell(location-1) : nullptr;                         // cell to the left not on map
     nextCells[2] = ((location+1)%10 != 0 || location == 0) ? m_theBoard.GetCell(location+1) : nullptr;    // cell right not on map
     nextCells[3] = (location+10 < 80 && location+10 > -1) ? m_theBoard.GetCell(location+10) : nullptr;      // cell below not on map
+    for (int i=0; i<4; i++){std::cout << nextCells[i] << " ";}
+    std::cout << "\n";
     return nextCells;
 }
 
