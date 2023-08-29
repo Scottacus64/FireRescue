@@ -127,8 +127,6 @@ void FireRescue::refreshBoard()
         bool iHazmat = cell->getHazmat();
         int iPoi = cell->getPoi();
         int iFireFighter = cell->getFireFighter();
-        //int doorNum = cell->getDoor();
-        //int doorState = cell->getDoorState();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
@@ -184,7 +182,7 @@ void FireRescue::refreshBoard()
         }
     }
     int doorNum;
-    for (int i=0; i<110; i++)
+    for (int i=0; i<178; i++)
     {
         for (int j=0; j<8; j++)
         {
@@ -329,7 +327,7 @@ void FireRescue::checkBreach(int location)
         std::cout << "\n...........................\n";
         for (int i=0; i<80; i++){printFire(i);}
         std::cout << "\n\n";
-        refreshBoard();
+
 }
 
 void FireRescue::explosion(int location)

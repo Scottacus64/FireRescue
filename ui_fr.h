@@ -78,27 +78,27 @@ public:
                 centerDisk[x] = new QLabel(FireRescue); 
                 centerDisk[x]->setObjectName("centerDisk"+QString::number(x));
                 centerDisk[x]->setPixmap(QPixmap());
-                centerDisk[x]->setGeometry(QRect(378+((col+1)*127), 35+((row+1)*125), 60, 60));
+                centerDisk[x]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));
 
                 leftUpperDisk[x] = new QLabel(FireRescue); 
                 leftUpperDisk[x]->setObjectName("leftUpperDisk"+QString::number(x));
                 leftUpperDisk[x]->setPixmap(QPixmap());
-                leftUpperDisk[x]->setGeometry(QRect(332+((col+1)*127), 5+((row+1)*125), 60, 60));
+                leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));
 
                 leftLowerDisk[x] = new QLabel(FireRescue); 
                 leftLowerDisk[x]->setObjectName("leftLowerDisk"+QString::number(x));
                 leftLowerDisk[x]->setPixmap(QPixmap());
-                leftLowerDisk[x]->setGeometry(QRect(332+((col+1)*127), 65+((row+1)*125), 60, 60));
+                leftLowerDisk[x]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));
 
                 rightLowerDisk[x] = new QLabel(FireRescue); 
                 rightLowerDisk[x]->setObjectName("rightLowerDisk"+QString::number(x));
                 rightLowerDisk[x]->setPixmap(QPixmap());
-                rightLowerDisk[x]->setGeometry(QRect(392+((col+1)*127), 65+((row+1)*125), 60, 60));
+                rightLowerDisk[x]->setGeometry(QRect(392+(col*127), 65+(row*125), 60, 60));
 
                 rightUpperDisk[x] = new QLabel(FireRescue); 
                 rightUpperDisk[x]->setObjectName("rightUpperDisk"+QString::number(x));
                 rightUpperDisk[x]->setPixmap(QPixmap());
-                rightUpperDisk[x]->setGeometry(QRect(392+((col+1)*127), 5+((row+1)*125), 60, 60));
+                rightUpperDisk[x]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
 
                 
             }
@@ -114,8 +114,8 @@ public:
         door[0]->setGeometry(QRect(0,0,0,0));
         door[1]->setGeometry(QRect( 810, 170 ,60, 60));
         door[2]->setGeometry(QRect( 1075, 270 ,60, 60));
-        door[3]->setGeometry(QRect( 685, 420 ,60, 60));
-        door[4]->setGeometry(QRect( 1365, 345 ,60, 60));
+        door[4]->setGeometry(QRect( 685, 420 ,60, 60));
+        door[3]->setGeometry(QRect( 1365, 345 ,60, 60));
         door[5]->setGeometry(QRect( 1195, 520 ,60, 60));
         door[6]->setGeometry(QRect( 855, 593 ,60, 60));
         door[7]->setGeometry(QRect( 1065, 770 ,60, 60));
@@ -191,16 +191,3 @@ namespace Ui {
 QT_END_NAMESPACE
 
 #endif // UI_FR_H
-
-
-
-
-
-        /*********   This is code to set the background of the QWidget to an Image *********
-         * QPixmap bkgnd("/Users/scottmiller/VSC/CPP/Yahtzee/resources/dice5c.png");
-        bkgnd = bkgnd.scaled(FireRescue->size(), Qt::IgnoreAspectRatio);
-        
-        QPalette palette;
-        palette.setBrush(QPalette::Window, bkgnd);
-        FireRescue->setPalette(palette);*/
-

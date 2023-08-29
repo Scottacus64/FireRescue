@@ -94,7 +94,8 @@ void MapCell::printBoard()
         std::cout << " ";
         for (int j=0; j<10; j++)
         {
-            std::cout << m_theMap[slot] << " ";
+            //std::cout << m_theMap[slot] << " ";
+            if (m_theMap[slot]== 4) {std::cout << "door slot = " << slot << "\n";}
             slot ++;
         }
         std::cout << "\n"; 
@@ -102,7 +103,8 @@ void MapCell::printBoard()
         {
             for (int k=0; k<11; k++)
             {
-                std::cout << m_theMap[slot] << " ";
+                if (m_theMap[slot]== 4) {std::cout << "door slot = " << slot << "\n";}
+                //std::cout << m_theMap[slot] << " ";
                 slot ++;
             }
                 std::cout << "\n"; 
