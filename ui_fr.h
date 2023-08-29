@@ -26,11 +26,11 @@ class Ui_FireRescue
 public:
     QTableWidget *tableWidget;
     QLabel *label;
-    QLabel *centerDisk[48];
-    QLabel *leftUpperDisk[48];
-    QLabel *leftLowerDisk[48];
-    QLabel *rightUpperDisk[48];
-    QLabel *rightLowerDisk[48];
+    QLabel *centerDisk[80];
+    QLabel *leftUpperDisk[80];
+    QLabel *leftLowerDisk[80];
+    QLabel *rightUpperDisk[80];
+    QLabel *rightLowerDisk[80];
     QLabel *door[9];
     QPushButton *startGame;
     QPushButton *doorB;
@@ -57,7 +57,7 @@ public:
         label->setText("Testing");
 
        
-        for (int i = 0; i < 48; ++i) 
+        for (int i = 0; i < 80; ++i) 
         {
             centerDisk[i] = new QLabel();  // Allocate memory for each QLabel
         }
@@ -70,11 +70,11 @@ public:
         QPixmap doorOpen("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
 
         /********************** set up the grid tokens ********************/
-        for (int row=0; row<6; row++)
+        for (int row=0; row<8; row++)
         {
-            for (int col=0; col<8; col++)
+            for (int col=0; col<10; col++)
             {
-                int x = (row*8)+col;
+                int x = (row*10)+col;
                 centerDisk[x] = new QLabel(FireRescue); 
                 centerDisk[x]->setObjectName("centerDisk"+QString::number(x));
                 centerDisk[x]->setPixmap(QPixmap());

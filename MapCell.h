@@ -35,7 +35,7 @@ public:
 
 
 private:
-    static int m_theMap[110];
+    static int m_theMap[178];
                          
     bool fire;
     bool smoke;

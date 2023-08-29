@@ -43,28 +43,22 @@ FireRescue::~FireRescue()
 
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
-    if (row > 0 && row < 7 && col > 0 && col < 9)
+    int gridLocation = (row*10) + col;
+    if (smokeOn == true)
     {
-        int gridLocation = ((row-1)*8) + col-1;
-        if (smokeOn == true)
-        {
-            placeSmoke(gridLocation);
-        }
-        else if (fireOn == true)
-        {
-            placeFire(gridLocation);
-        }
-        else
-        {
-            cycleDoor(gridLocation);
-        }
-        refreshBoard();
+        placeSmoke(gridLocation);
     }
-    else 
+    else if (fireOn == true)
     {
-        ui->label->setText("On Street!");
+        placeFire(gridLocation);
     }
+    else
+    {
+        cycleDoor(gridLocation);
+    }
+    refreshBoard();
 }
+
 
 
 void FireRescue::setUpGame()
@@ -124,7 +118,7 @@ void FireRescue::on_smokeB_clicked()
 void FireRescue::refreshBoard()
 {
     bool found;
-    for (int i=0; i<48; i++)
+    for (int i=0; i<80; i++)
     {
         MapCell* cell = m_theBoard.GetCell(i); 
         bool iSmoke = cell->getSmoke();
@@ -218,27 +212,15 @@ void FireRescue::placeSmoke(int location)
     {
         std::vector<MapCell*> nearCells = adjacentCells(location);  //  populate the vector with the surrounding cells
         bool setFire = false;
-        //int base = (row * 17) + col;
         for (int i=0; i<4; i++)                                     // step through each cell
         {
             if (nearCells[i] != nullptr)
-            {
-                
-                int row = location / 8;
-                int col = location % 8;
-                int base = (row * 17) + col;
+            {  
+                int row = location / 10;
+                int col = location % 10;
+                int base = (row * 21) + col;
                 int barrier = m_MapArray[base + baseOffset[i]];
-                /*if (i==0) {barrier = cell->getMapWall(base);}
-                if (i==1) {barrier = cell->getMapWall(base + 8);}
-                if (i==2) {barrier = cell->getMapWall(base + 9);}
-                if (i==3) {barrier = cell->getMapWall(base + 17);}*/
                 std::cout << "***** i = " << i << " Base = " << base << "get fire = " << nearCells[i]->getFire() <<  " Barrier = " << barrier <<"\n";
-                
-
-
-                //int barrier = m_theBoard[location].getWall(i);       // get the current cell's wall/door value in this direction
-                //if (barrier >2) {barrier = m_theBoard[location].getDoorState();}    // if check doorState
-
                 if (nearCells[i]->getFire() == true && barrier == 3 || nearCells[i]->getFire() == true && barrier == 0 )
                 {
                     setFire = true;                                 //recursive call to place fire
@@ -253,9 +235,9 @@ void FireRescue::placeSmoke(int location)
 
     }
         std::cout << "location = " << location << "\n";
-        for (int i=0; i<48; i++){printSmoke(i);}
+        for (int i=0; i<80; i++){printSmoke(i);}
         std::cout << "\n...........................\n";
-        for (int i=0; i<48; i++){printFire(i);}
+        for (int i=0; i<80; i++){printFire(i);}
         std::cout << "\n\n";
         cell->printBoard();
 }
@@ -273,9 +255,9 @@ void FireRescue::placeFire(int location)
         {    
             if (nearCells[i] != nullptr)
             {
-                int row = location / 8;
-                int col = location % 8;
-                int base = (row * 17) + col;
+                int row = location / 10;
+                int col = location % 10;
+                int base = (row * 21) + col;
                 int barrier = m_MapArray[base + baseOffset[i]];
                 //int barrier = cell->getWall(i);       // get the current cell's wall/door value in this direction
                 if (barrier == 3) {barrier = 0;}                    // if there is a door and it is open then set barrier to 0
@@ -296,27 +278,24 @@ void FireRescue::cycleDoor(int location)
     std::cout << "............\n";
     for (int i=0; i<4; i++)                                     // step through each cell
     {    
-        int row = location / 8;
-        int col = location % 8;
-        int base = (row * 17) + col;
+        int row = location / 10;
+        int col = location % 10;
+        int base = (row * 21) + col;
         int barrier = m_MapArray[base + baseOffset[i]];
         std::cout << "\ndirection: " << i  << " barrier = " << barrier <<"\n";
         if (barrier == 4)
         {
             int otherSideOfDoor;            
-            if (i==0) {otherSideOfDoor = location - 8; m_MapArray[base + baseOffset[i]] = 3;}
+            if (i==0) {otherSideOfDoor = location - 10; m_MapArray[base + baseOffset[i]] = 3;}
             if (i==1) {otherSideOfDoor = location - 1; m_MapArray[base + baseOffset[i]] = 3;} 
             if (i==2) {otherSideOfDoor = location +1; m_MapArray[base + baseOffset[i]] = 3;}
-            if (i==3) {otherSideOfDoor = location + 8; m_MapArray[base + baseOffset[i]] = 3;}
+            if (i==3) {otherSideOfDoor = location + 10; m_MapArray[base + baseOffset[i]] = 3;}
             MapCell* otherCell = m_theBoard.GetCell(otherSideOfDoor);     
             checkBreach(otherSideOfDoor);
         }
         if (barrier == 3)
         {
-            if (i==0) {m_MapArray[base + baseOffset[i]]= 4;}
-            if (i==1) {m_MapArray[base + baseOffset[i]]= 4;} 
-            if (i==2) {m_MapArray[base + baseOffset[i]]= 4;}
-            if (i==3) {m_MapArray[base + baseOffset[i]]= 4;}  
+            m_MapArray[base + baseOffset[i]]= 4;
         }
     } 
     refreshBoard();   
@@ -333,9 +312,9 @@ void FireRescue::checkBreach(int location)
         {
             if (nearCells[i] != nullptr)
             {
-                int row = location / 8;
-                int col = location % 8;
-                int base = (row * 17) + col;
+                int row = location / 10;
+                int col = location % 10;
+                int base = (row * 21) + col;
                 int barrier = m_MapArray[base + baseOffset[i]];     // get the current cell's wall/door value in this direction
                 if (barrier < 4) {barrier = 0;}                    // if there is a door and it is open then set barrier to 0
                 if (nearCells[i]->getFire() == true && barrier == 0 && cell->getSmoke() == true)
@@ -346,9 +325,9 @@ void FireRescue::checkBreach(int location)
         }
         if (setFire == true) {placeFire(location);}
         std::cout << "location = " << location << "\n";
-        for (int i=0; i<48; i++){printSmoke(i);}
+        for (int i=0; i<80; i++){printSmoke(i);}
         std::cout << "\n...........................\n";
-        for (int i=0; i<48; i++){printFire(i);}
+        for (int i=0; i<80; i++){printFire(i);}
         std::cout << "\n\n";
         refreshBoard();
 }
@@ -363,10 +342,10 @@ std::vector<MapCell*> FireRescue::adjacentCells(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
     std::vector<MapCell*> nextCells(4, nullptr);
-    nextCells[0] = (location-8 < 48 && location-8 > -1) ? m_theBoard.GetCell(location-8) : nullptr;      // if the cell above is not on map
-    nextCells[1] = (location%8 != 0) ? m_theBoard.GetCell(location-1) : nullptr;                         // cell to the left not on map
-    nextCells[2] = ((location+1)%8 != 0 || location == 0) ? m_theBoard.GetCell(location+1) : nullptr;    // cell right not on map
-    nextCells[3] = (location+8 < 48 && location+8 > -1) ? m_theBoard.GetCell(location+8) : nullptr;      // cell below not on map
+    nextCells[0] = (location-10 < 80 && location-10 > -1) ? m_theBoard.GetCell(location-10) : nullptr;      // if the cell above is not on map
+    nextCells[1] = (location%10 != 0) ? m_theBoard.GetCell(location-1) : nullptr;                         // cell to the left not on map
+    nextCells[2] = ((location+1)%10 != 0 || location == 0) ? m_theBoard.GetCell(location+1) : nullptr;    // cell right not on map
+    nextCells[3] = (location+10 < 80 && location+10 > -1) ? m_theBoard.GetCell(location+8) : nullptr;      // cell below not on map
     return nextCells;
 }
 
@@ -375,7 +354,7 @@ void FireRescue::printSmoke(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
     bool smoke = cell->getSmoke();
-    if (location%8 == 0 && location >0) {std::cout << "\n";}
+    if (location%10 == 0 && location >0) {std::cout << "\n";}
     std::cout << smoke;
     
 }
@@ -384,7 +363,7 @@ void FireRescue::printFire(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
     bool fire = cell->getFire();
-    if (location%8 == 0 && location >0) {std::cout << "\n";}
+    if (location%10 == 0 && location >0) {std::cout << "\n";}
     std::cout << fire;
     
 }

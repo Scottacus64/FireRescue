@@ -4,7 +4,7 @@
 
 Board::Board() 
 {
-     for (int i=0; i <48; i++) 
+     for (int i=0; i <80; i++) 
      {
         MapCell* pMapCell = new MapCell(i);
         m_theBoard.push_back(*pMapCell);

@@ -27,7 +27,7 @@ public:
     std::vector<MapCell*> adjacentCells(int location);
     void printSmoke(int location);
     void printFire(int location);
-    int  doorArray[8] = {11,30,44,41,65,71,98,100};
+    int  doorArray[8] = {35,58,76,71,101,109,142,144};  
     int  baseOffset[4]= {0,8,9,17};
     int* m_MapArray;
 
