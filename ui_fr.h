@@ -32,10 +32,28 @@ public:
     QLabel *rightUpperDisk[80];
     QLabel *rightLowerDisk[80];
     QLabel *door[9];
+    QLabel *cube[43];
     QPushButton *startGame;
     QPushButton *doorB;
     QPushButton *fireB;
     QPushButton *smokeB;
+    int theWalls[178] = {                0,0,0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,0,0,0,
+                                         0,1,2,3,4,5,0,6,7,0,
+                                        0,8,0,0,0,0,9,0,0,10,0,
+                                         0,0,0,0,0,0,0,0,0,0,
+                                        0,11,0,0,12,0,0,0,0,13,0,
+                                         0,0,0,14,15,16,17,18,0,0,
+                                        0,0,0,0,0,0,0,19,0,20,0,
+                                         0,0,0,0,0,0,0,0,0,0,
+                                        0,21,0,22,0,0,0,0,0,0,0,
+                                         0,23,24,25,0,26,27,28,29,0,
+                                        0,30,0,0,0,0,31,0,32,33,0,
+                                         0,0,0,0,0,0,0,0,0,0,
+                                        0,34,0,0,0,0,0,0,0,35,0,
+                                         0,36,37,0,38,39,40,41,42,0,
+                                        0,0,0,0,0,0,0,0,0,0,0,  
+                                         0,0,0,0,0,0,0,0,0,0     }; 
 
     void setupUi(QWidget *FireRescue)
     {
@@ -56,12 +74,6 @@ public:
         label->setGeometry(QRect(0, 0, 200, 100));
         label->setText("Testing");
 
-       
-        /*for (int i = 0; i < 80; ++i) 
-        {
-            centerDisk[i] = new QLabel();  // Allocate memory for each QLabel
-        }*/
-
         QPixmap fire("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire.png");
         QPixmap smoke("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke.png");
         QPixmap hazmat("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHazmat.png");
@@ -69,7 +81,7 @@ public:
         QPixmap poi3("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi3.png");
         QPixmap doorClosed("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorClosed.png");
         QPixmap doorOpen("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
-
+        QPixmap square("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
         /********************** set up the grid tokens ********************/
         for (int row=0; row<8; row++)
         {
@@ -121,6 +133,40 @@ public:
         door[6]->setGeometry(QRect( 855, 593 ,60, 60));
         door[7]->setGeometry(QRect( 1065, 770 ,60, 60));
         door[8]->setGeometry(QRect( 1325, 775 ,60, 60));
+
+        /********************** set up the squares ********************/
+        for (int i=0; i<43; i++)
+        {
+            cube[i] = new QLabel(FireRescue);
+            cube[i]->setObjectName("square"+QString::number(i));
+            cube[i]->setPixmap(QPixmap());
+        }
+        int location = 0;
+        int xOffset;
+        int yOffset;
+        for (int i=0; i<178; i++)
+        {
+            if (theWalls[i]>0)
+            {
+                int row = i/21;
+                int col = i%21;
+                if (col<10)
+                {
+                    xOffset = 63 + (col*127);
+                    yOffset = (row*125)-10;
+                }
+                else
+                {
+                    xOffset = (col-10)*127 ;
+                    yOffset = (row*125)+53;
+                    if (col>15){xOffset+=6;}
+                    
+                }
+                std::cout << location << ") Col = " << col << " Row =" << row << "\n";
+                cube[location]->setGeometry(QRect(325+xOffset, yOffset, 20, 20));
+                location ++;
+            }
+        }
 
         /*********************** set up the QTable ********************/
 

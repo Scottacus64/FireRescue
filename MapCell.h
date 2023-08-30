@@ -12,6 +12,7 @@ public:
     MapCell(int gridLocation);
     ~MapCell();
     static int* getMapArray() ;
+    static int* getWallArray();
 
     int id;
     bool getSmoke();
@@ -36,6 +37,7 @@ public:
 
 private:
     static int m_theMap[178];
+    static int m_theWalls[178];
                          
     bool fire;
     bool smoke;

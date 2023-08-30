@@ -7,8 +7,8 @@ FireRescue::FireRescue(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FireRescue)
 {
-    fire.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire.png");
-    smoke.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke.png");
+    fire.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire2.png");
+    smoke.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke2.png");
     hotSpot.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHotSpot.png");
     hazmat.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHazmat.png");
     doorOpen.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
@@ -27,10 +27,12 @@ FireRescue::FireRescue(QWidget *parent)
     poi11.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi11.png");
     poi12.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi12.png");
     poi13.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoiBlank.png");
-    square.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
+    greySquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
+    blackSquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
 
     Board m_theBoard = Board();
     m_MapArray = MapCell::getMapArray();
+    m_WallArray = MapCell::getWallArray();
 
     ui->setupUi(this);
 }
@@ -205,6 +207,11 @@ void FireRescue::refreshBoard()
             if (m_MapArray[i] == 3){ui->door[doorNum]->setPixmap(doorOpen);}
             if (m_MapArray[i] == 4){ui->door[doorNum]->setPixmap(doorClosed);}
             found = false;
+        }
+        if (m_WallArray[i] > 0)
+        {
+            if (m_MapArray[i]== 1){ui->cube[m_WallArray[i]-1]->setPixmap(greySquare);}
+            if (m_MapArray[i]== 0){ui->cube[m_WallArray[i]-1]->setPixmap(blackSquare);}
         }
     }
 }
@@ -406,21 +413,6 @@ void FireRescue::damageWall(int direction, int location, int base)
     if (wallDamage > 21){std::cout << "GAME OVER" << "\n";}
     int barrier = m_MapArray[base + baseOffset[direction]];
     m_MapArray[base + baseOffset[direction]] = barrier - 1;
-    int row = location / 10;
-    int col = location % 10;
-    if (barrier == 1)
-    {
-        damageSquare[wallDamage] = new QLabel(); 
-        damageSquare[wallDamage]->setObjectName("damageSquare"+QString::number(wallDamage));
-        damageSquare[wallDamage]->setPixmap(poi0);
-        damageSquare[wallDamage]->setGeometry(QRect(392+(col*127), 65+(row*125), 60, 60));
-        ui->label->setText(QString::number(wallDamage));
-    }
-    else
-    {
-        ui->label->setText(QString::number(wallDamage));
-    }
-
 }
 
 

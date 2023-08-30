@@ -37,6 +37,7 @@ public:
     int  baseOffset[4]= {0,10,11,21};
     int  wallDamage = 0;
     int* m_MapArray;
+    int* m_WallArray;
     QLabel *damageSquare[40];
 
 private:
@@ -62,7 +63,8 @@ private:
     QPixmap poi11;
     QPixmap poi12;
     QPixmap poi13;
-    QPixmap square;
+    QPixmap greySquare;
+    QPixmap blackSquare;
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;
