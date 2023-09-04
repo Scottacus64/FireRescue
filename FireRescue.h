@@ -36,17 +36,17 @@ public:
     void shockWave(int direction, int location);
     void damageWall(int direction, int location, int base); 
     void placeHotSpot(int location);
-    void rollDice();
-    bool checkNewSpot();
+    void rollDice(int slot);
+    bool checkNewSpot(int slot);
     void placeHazmat(int location);
     void placePOI(int location);
+    void delayTimer(int delay);
 
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
     int  baseOffset[4]= {0,10,11,21};
     int  wallDamage = 0;
     int* m_MapArray;
     int* m_WallArray;
-    int  startUpSequence = 0;
     QLabel *damageSquare[40];
 
 private:

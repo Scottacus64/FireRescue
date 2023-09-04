@@ -72,10 +72,45 @@ public:
         backgroundLabel->setPixmap(bkgnd);
         backgroundLabel->setGeometry(QRect(200, 0, 1400, 1000));
 
+
+        /*********************** set up the QTable ********************/
+
+        tableWidget = new QTableWidget(FireRescue);
+        if (tableWidget->columnCount() < 10)
+            tableWidget->setColumnCount(10);
+        if (tableWidget->rowCount() < 8)
+            tableWidget->setRowCount(8);
+        tableWidget->setObjectName("tableWidget");
+        tableWidget->setGeometry(QRect(330, 0, 1400, 1000));
+        tableWidget->setRowCount(8);
+        tableWidget->setColumnCount(10);
+        tableWidget->horizontalHeader()->setVisible(false);
+        tableWidget->horizontalHeader()->setDefaultSectionSize(127);
+
+        
+
+        tableWidget->verticalHeader()->setVisible(false);
+        tableWidget->verticalHeader()->setDefaultSectionSize(125);
+        tableWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        tableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+        tableWidget->setStyleSheet("QTableWidget { background-color: transparent; }"
+                           "QTableWidget::item { selection-background-color: transparent; }"
+                           "QTableWidget::item:selected { background-color: transparent; }");
+
+
+
         label = new QLabel(FireRescue);
         label->setObjectName("label");
-        label->setGeometry(QRect(20, 900, 200, 100));
-        label->setText("Testing");
+        QFont font;
+        font.setPointSize(80);
+        label->setFont(font);
+        label->setStyleSheet("background-color: rgb(201,79,19); color: white;");
+        label->setAlignment(Qt::AlignCenter);
+        label->setGeometry(QRect(620, 10, 675, 100));
+        label->setText("Place Explosion 1");
+        label->setVisible(false);
 
         QPixmap fire("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire.png");
         QPixmap smoke("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke.png");
@@ -199,32 +234,7 @@ public:
         D8->setPixmap(b1); 
         D8->setGeometry(QRect(110, 30, 60, 60));
 
-        /*********************** set up the QTable ********************/
-
-        tableWidget = new QTableWidget(FireRescue);
-        if (tableWidget->columnCount() < 10)
-            tableWidget->setColumnCount(10);
-        if (tableWidget->rowCount() < 8)
-            tableWidget->setRowCount(8);
-        tableWidget->setObjectName("tableWidget");
-        tableWidget->setGeometry(QRect(330, 0, 1400, 1000));
-        tableWidget->setRowCount(8);
-        tableWidget->setColumnCount(10);
-        tableWidget->horizontalHeader()->setVisible(false);
-        tableWidget->horizontalHeader()->setDefaultSectionSize(127);
-
-        
-
-        tableWidget->verticalHeader()->setVisible(false);
-        tableWidget->verticalHeader()->setDefaultSectionSize(125);
-        tableWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        tableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-        tableWidget->setStyleSheet("QTableWidget { background-color: transparent; }"
-                           "QTableWidget::item { selection-background-color: transparent; }"
-                           "QTableWidget::item:selected { background-color: transparent; }");
-
+       
         startGame = new QPushButton(FireRescue);
         startGame->setObjectName("startGame");
         startGame->setGeometry(QRect(50, 200, 100, 100));
