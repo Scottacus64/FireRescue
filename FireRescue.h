@@ -69,9 +69,8 @@ private:
     QPixmap poi8;
     QPixmap poi9;
     QPixmap poi10;
-    QPixmap poi11;
-    QPixmap poi12;
-    QPixmap poi13;
+    QPixmap poiBlank;
+
     QPixmap greySquare;
     QPixmap blackSquare;
 

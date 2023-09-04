@@ -20,6 +20,7 @@ public:
     bool getHazmat();
     bool getHotSpot();
     bool getChecked();
+    bool getPoiState();
     int  getPoi();
     int  getFireFighter();
     int  getID();
@@ -31,6 +32,7 @@ public:
     void setHotSpot(bool hotSpot);
     void setChecked(bool checked);
     void setPoi(int poi);
+    void setPoiState(bool state);
     void setFireFighter(int fireFighter);
     void printBoard();
 
@@ -44,6 +46,7 @@ private:
     bool hazmat;
     bool checked;
     int  poi;
+    bool poiState;
     bool hotSpot;
     int  fireFighter;
     int  wallArray[4];

@@ -29,6 +29,8 @@ FireRescue::FireRescue(QWidget *parent)
     poi9.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi9.png");
     poi10.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi10.png");
 
+    poiBlank.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sPOIblank.png");
+
     D6[1] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r1.png");
     D6[2] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r2.png");
     D6[3] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r3.png");
@@ -45,8 +47,6 @@ FireRescue::FireRescue(QWidget *parent)
     D8[7] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b7.png");
     D8[8] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b8.png");
 
-
-    poi11.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoiBlank.png");
     greySquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
     blackSquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
 
@@ -101,9 +101,8 @@ void FireRescue::setUpGame()
     ui->label->setVisible(true);
     for (int startUpSequence=0; startUpSequence<13; startUpSequence++)
     {
-        if (startUpSequence == 0)
+        if (startUpSequence == 0)                            // explosion 1
         {
-            // roll dice for first explosion
             if (value8 < 5)
             {
                 row = 4;
@@ -116,12 +115,11 @@ void FireRescue::setUpGame()
             }
             location = (row*8) + col;
             explosion(location);
-            //refreshBoard();
             delayTimer(500);
-            ui->label->setText("Place Explosion 2");
         }
-        if (startUpSequence == 1)
+        if (startUpSequence == 1)                               // explosion 2
         {
+            ui->label->setText("Place Explosion 2");
             onFire = true;
             while (onFire == true )
             {
@@ -131,10 +129,10 @@ void FireRescue::setUpGame()
             }
             explosion(location);
             delayTimer(500);
-            ui->label->setText("Place Explosion 3");
         }
-        if (startUpSequence == 2)
+        if (startUpSequence == 2)                               // explostion 3
         {
+            ui->label->setText("Place Explosion 3");
             value8 = 9-value8;
             onFire = true;
             while (onFire == true )
@@ -145,10 +143,10 @@ void FireRescue::setUpGame()
             }
             explosion(location);
             delayTimer(500);
-            ui->label->setText("Place 4 Hazmats");
         }
         if (startUpSequence >2 && startUpSequence <7)           // place Hazmats
         {
+            ui->label->setText("Place Hazmat " + QString::number(startUpSequence-2));
             onFire = true;
             bool hazmatHere = true;
             while (onFire == true || hazmatHere == true )
@@ -164,7 +162,7 @@ void FireRescue::setUpGame()
         }
         if (startUpSequence >6 && startUpSequence <10)          // place POI
         {
-            ui->label->setText("Place 3 Persons");
+            ui->label->setText("Place 3 Person " + QString::number(startUpSequence-6));
             onFire = true;
             int poiHere = 20;
             while (onFire == true || poiHere < 14)
@@ -180,7 +178,7 @@ void FireRescue::setUpGame()
         }
         if (startUpSequence > 9 && startUpSequence <13)         // place Hot Spots
         {
-            ui->label->setText("Place 3 Hot Spots");
+            ui->label->setText("Place 3 Hot Spot " + QString::number(startUpSequence-9));
             int location;
             bool hotSpotHere = true;
             while (hotSpotHere == true)
@@ -279,8 +277,9 @@ void FireRescue::refreshBoard()
         bool iFire = cell->getFire();
         bool iHotSpot = cell->getHotSpot();
         bool iHazmat = cell->getHazmat();
-        int iPoi = cell->getPoi();
-        int iFireFighter = cell->getFireFighter();
+        int  iPoi = cell->getPoi();
+        bool poiState = cell->getPoiState();
+        int  iFireFighter = cell->getFireFighter();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
@@ -288,51 +287,46 @@ void FireRescue::refreshBoard()
 
         if (iPoi < 14)
         {
-            switch (iPoi)
+            if (poiState == true)
             {
-            case 0:
-                ui->rightLowerDisk[i]->setPixmap(poi0);
-                break;
-            case 1:
-                ui->rightLowerDisk[i]->setPixmap(poi1);
-                break;
-            case 2:
-                ui->rightLowerDisk[i]->setPixmap(poi2);
-                break;
-            case 3:
-                ui->rightLowerDisk[i]->setPixmap(poi3);
-                break;
-            case 4:
-                ui->rightLowerDisk[i]->setPixmap(poi4);
-                break;
-            case 5:
-                ui->rightLowerDisk[i]->setPixmap(poi5);
-                break;                        
-            case 6:
-                ui->rightLowerDisk[i]->setPixmap(poi6);
-                break;
-            case 7:
-                ui->rightLowerDisk[i]->setPixmap(poi7);
-                break;        
-            case 8:
-                ui->rightLowerDisk[i]->setPixmap(poi8);
-                break;
-            case 9:
-                ui->rightLowerDisk[i]->setPixmap(poi9);
-                break;
-            case 10:
-                ui->rightLowerDisk[i]->setPixmap(poi10);
-                break;
-            case 11:
-                ui->rightLowerDisk[i]->setPixmap(poi11);
-                break;
-            case 12:
-                ui->rightLowerDisk[i]->setPixmap(poi12);
-                break;
-            case 13:
-                ui->rightLowerDisk[i]->setPixmap(poi13);
-                break;   
-            } 
+                switch (iPoi)
+                {
+                case 0:
+                    ui->rightLowerDisk[i]->setPixmap(poiBlank);
+                    break;
+                case 1:
+                    ui->rightLowerDisk[i]->setPixmap(poi1);
+                    break;
+                case 2:
+                    ui->rightLowerDisk[i]->setPixmap(poi2);
+                    break;
+                case 3:
+                    ui->rightLowerDisk[i]->setPixmap(poi3);
+                    break;
+                case 4:
+                    ui->rightLowerDisk[i]->setPixmap(poi4);
+                    break;
+                case 5:
+                    ui->rightLowerDisk[i]->setPixmap(poi5);
+                    break;                        
+                case 6:
+                    ui->rightLowerDisk[i]->setPixmap(poi6);
+                    break;
+                case 7:
+                    ui->rightLowerDisk[i]->setPixmap(poi7);
+                    break;        
+                case 8:
+                    ui->rightLowerDisk[i]->setPixmap(poi8);
+                    break;
+                case 9:
+                    ui->rightLowerDisk[i]->setPixmap(poi9);
+                    break;
+                case 10:
+                    ui->rightLowerDisk[i]->setPixmap(poi10);
+                    break;  
+                } 
+            }
+            else{ui->rightLowerDisk[i]->setPixmap(poi0);}
         }
     }
     int doorNum;
