@@ -36,8 +36,10 @@ public:
     void shockWave(int direction, int location);
     void damageWall(int direction, int location, int base); 
     void placeHotSpot(int location);
-    int  rollDice();
+    void rollDice();
     bool checkNewSpot();
+    void placeHazmat(int location);
+    void placePOI(int location);
 
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
     int  baseOffset[4]= {0,10,11,21};

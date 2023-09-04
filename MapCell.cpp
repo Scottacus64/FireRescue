@@ -44,7 +44,7 @@ MapCell::MapCell()
 
 
 MapCell::MapCell(int gridLocation)
-    : fire(false), smoke(false), hazmat(false), hotSpot(false), poi(14), fireFighter(14), checked(false), id(gridLocation)
+    : fire(false), smoke(false), hazmat(false), hotSpot(false), poi(20), fireFighter(14), checked(false), id(gridLocation)
 {}
 
 

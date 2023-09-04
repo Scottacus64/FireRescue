@@ -42,8 +42,6 @@ FireRescue::FireRescue(QWidget *parent)
     std::random_device rd;
     std::mt19937 rng(rd());
     std::shuffle(poiList.begin(), poiList.end(), rng);
-    for (int i : poiList) {std::cout << i << " ";}
-
 
     ui->setupUi(this);
 }
@@ -79,12 +77,12 @@ void FireRescue::setUpGame()
 {
     int row = 0;
     int col = 0;
-    value6 = rollDice();
+    rollDice();
     bool onFire = false;
+    int location;
     if (startUpSequence == 0)
     {
         // roll dice for first explosion
-
         if (value8 < 5)
         {
             row = 4;
@@ -95,48 +93,74 @@ void FireRescue::setUpGame()
             row = 5;
             col = 11-value8;
         }
-        int location = (row*8) + col;
+        location = (row*8) + col;
         explosion(location);
         refreshBoard();
     }
-    int location = ((value6)*10)+(value8);
-    MapCell* cell = m_theBoard.GetCell(location); 
     if (startUpSequence == 1)
     {
-        onFire = cell->getFire();
+        onFire = true;
         while (onFire == true )
         {
-            std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             onFire = checkNewSpot();
             location = ((value6)*10)+(value8);
+             std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
         }
         explosion(location);
     }
     if (startUpSequence == 2)
     {
         value8 = 9-value8;
-        int location = ((value6)*10)+(value8);
-        MapCell* cell = m_theBoard.GetCell(location); 
-        onFire = cell->getFire();
+        onFire = true;
         while (onFire == true )
         {
-            std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             onFire = checkNewSpot();
             location = ((value6)*10)+(value8);
+            std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
         }
         explosion(location);
     }
-    if (startUpSequence >2 && startUpSequence <7)
+    if (startUpSequence >2 && startUpSequence <7)           // place Hazmats
     {
-
+        onFire = true;
+        bool hazmatHere = true;
+        while (onFire == true || hazmatHere == true )
+        {
+            onFire = checkNewSpot();
+            location = ((value6)*10)+(value8);
+            MapCell* cell = m_theBoard.GetCell(location); 
+            hazmatHere = cell->getHazmat();
+            std::cout  << value6 << "," << value8 << "fire: " << onFire << " Haz: " << hazmatHere << "\n";
+        }
+        placeHazmat(location);
     }
-    if (startUpSequence >6 && startUpSequence <10)
+    if (startUpSequence >6 && startUpSequence <10)          // place POI
     {
-
+        onFire = true;
+        int poiHere = 20;
+        while (onFire == true || poiHere < 14)
+        {
+            onFire = checkNewSpot();
+            location = ((value6)*10)+(value8);
+            MapCell* cell = m_theBoard.GetCell(location); 
+            poiHere = cell->getPoi();
+            std::cout  << value6 << "," << value8 << "fire: " << onFire << " Poi: " << poiHere << "\n";
+        }
+        placePOI(location);
     }
-    if (startUpSequence > 9 && startUpSequence <13)
+    if (startUpSequence > 9 && startUpSequence <13)         // place Hot Spots
     {
-
+        int location;
+        bool hotSpotHere = true;
+        while (hotSpotHere == true)
+        {
+            rollDice();
+            location = ((value6)*10)+(value8);
+            MapCell* cell = m_theBoard.GetCell(location); 
+            hotSpotHere= cell->getHotSpot();
+        }
+        std::cout << "LOCATION = " << location << "\n";
+        placeHotSpot(location);
     }
     startUpSequence ++;
     ui->label->setText(QString::number(value6) + QString::number(value8));
@@ -145,18 +169,17 @@ void FireRescue::setUpGame()
 
 bool FireRescue::checkNewSpot()
 {
-    value6 = rollDice();
+    rollDice();
     int location = ((value6)*10)+(value8);
     MapCell* cell = m_theBoard.GetCell(location); 
     bool onFire = cell->getFire();
     return onFire;
 }
 
-int FireRescue::rollDice()
+void FireRescue::rollDice()
 {
     if (startUpSequence != 2){value8 = die.rollDie(8);}
-    int value6 = die.rollDie(6);
-    return value6;
+    value6 = die.rollDie(6);
 }
 
 
@@ -353,6 +376,37 @@ void FireRescue::placeFire(int location)
 }
 
 
+void FireRescue::placeHotSpot(int location)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    bool hs = cell->getHotSpot();
+    if (hotSpots > 0 && hs==false)
+    {
+        cell->setHotSpot(true);
+        hotSpots -= 1;
+        ui->hs[hotSpots]->setPixmap(QPixmap());
+    }
+    refreshBoard();
+}
+
+void FireRescue::placeHazmat(int location)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    cell->setHazmat(true);
+    refreshBoard();
+}
+
+
+void FireRescue::placePOI(int location)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    int poi = poiList.back();
+    poiList.pop_back();
+    cell->setPoi(poi);
+    refreshBoard();  
+}
+
+
 void FireRescue::cycleDoor(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
@@ -399,12 +453,6 @@ void FireRescue::checkBreach(int location)
             }
         }
         if (setFire == true) {placeFire(location);}
-        //std::cout << "location = " << location << "\n";
-        //for (int i=0; i<80; i++){printSmoke(i);}
-        //std::cout << "\n...........................\n";
-        //for (int i=0; i<80; i++){printFire(i);}
-        //std::cout << "\n\n";
-
 }
 
 void FireRescue::explosion(int location)
@@ -445,17 +493,7 @@ void FireRescue::explosion(int location)
     }
 }
 
-void FireRescue::placeHotSpot(int location)
-{
-    MapCell* cell = m_theBoard.GetCell(location);
-    bool hs = cell->getHotSpot();
-    if (hotSpots > 0 && hs==false)
-    {
-        cell->setHotSpot(true);
-        hotSpots -= 1;
-        ui->hs[hotSpots]->setPixmap(QPixmap());
-    }
-}
+
 
 void FireRescue::shockWave(int direction, int location)
 {
