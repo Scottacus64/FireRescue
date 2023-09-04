@@ -74,6 +74,10 @@ private:
     QPixmap poi13;
     QPixmap greySquare;
     QPixmap blackSquare;
+
+    QPixmap D6[7];
+    QPixmap D8[9];
+
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;

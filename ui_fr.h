@@ -34,6 +34,8 @@ public:
     QLabel *door[9];
     QLabel *cube[43];
     QLabel *hs[12];
+    QLabel *D6;
+    QLabel *D8;
     QPushButton *startGame;
     QPushButton *doorB;
     QPushButton *fireB;
@@ -72,7 +74,7 @@ public:
 
         label = new QLabel(FireRescue);
         label->setObjectName("label");
-        label->setGeometry(QRect(0, 0, 200, 100));
+        label->setGeometry(QRect(20, 900, 200, 100));
         label->setText("Testing");
 
         QPixmap fire("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire.png");
@@ -83,6 +85,8 @@ public:
         QPixmap doorClosed("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorClosed.png");
         QPixmap doorOpen("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
         QPixmap square("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
+        QPixmap r1("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r1.png");
+        QPixmap b1("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b1.png");
         /********************** set up the grid tokens ********************/
         for (int row=0; row<8; row++)
         {
@@ -184,6 +188,16 @@ public:
                 slot += 1;
             }
         }
+
+        /*********************** set up the Dice ********************/
+        D6 = new QLabel(FireRescue);
+        D6->setObjectName("D6");
+        D6->setPixmap(r1); 
+        D6->setGeometry(QRect(30, 30, 60, 60));
+        D8 = new QLabel(FireRescue);
+        D8->setObjectName("D8");
+        D8->setPixmap(b1); 
+        D8->setGeometry(QRect(110, 30, 60, 60));
 
         /*********************** set up the QTable ********************/
 

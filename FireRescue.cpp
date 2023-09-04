@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <QTimer>
 
 FireRescue::FireRescue(QWidget *parent)
     : QWidget(parent)
@@ -27,6 +28,23 @@ FireRescue::FireRescue(QWidget *parent)
     poi8.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi8.png");
     poi9.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi9.png");
     poi10.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi10.png");
+
+    D6[1] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r1.png");
+    D6[2] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r2.png");
+    D6[3] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r3.png");
+    D6[4] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r4.png");
+    D6[5] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r5.png");
+    D6[6] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r6.png");
+
+    D8[1] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b1.png");
+    D8[2] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b2.png");
+    D8[3] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b3.png");
+    D8[4] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b4.png");
+    D8[5] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b5.png");
+    D8[6] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b6.png");
+    D8[7] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b7.png");
+    D8[8] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b8.png");
+
 
     poi11.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoiBlank.png");
     greySquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
@@ -158,8 +176,8 @@ void FireRescue::setUpGame()
             location = ((value6)*10)+(value8);
             MapCell* cell = m_theBoard.GetCell(location); 
             hotSpotHere= cell->getHotSpot();
+            std::cout << value6 << "," << value8 << " HotSpot: " << hotSpotHere << "\n";
         }
-        std::cout << "LOCATION = " << location << "\n";
         placeHotSpot(location);
     }
     startUpSequence ++;
@@ -178,8 +196,22 @@ bool FireRescue::checkNewSpot()
 
 void FireRescue::rollDice()
 {
-    if (startUpSequence != 2){value8 = die.rollDie(8);}
-    value6 = die.rollDie(6);
+    QTimer timer;
+    timer.setInterval(25);
+    for (int j=0; j<10; j++)
+    {
+        if (startUpSequence != 2){value8 = die.rollDie(8);}
+        value6 = die.rollDie(6);
+        ui->D6->setPixmap(D6[value6]);
+        ui->D8->setPixmap(D8[value8]);
+        timer.start();
+        // Use a loop to wait until the QTimer times out (25ms)
+        QEventLoop loop;
+        QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+
+    
 }
 
 
@@ -284,7 +316,6 @@ void FireRescue::refreshBoard()
         {
             if (i== doorArray[j]) 
             {
-                //std::cout << "Slot = " << i << " door value = " << m_MapArray[i] << "\n";
                 found = true;
                 doorNum = j+1;
                 break; 
@@ -323,7 +354,6 @@ void FireRescue::placeSmoke(int location)
             {  
                 int base = baseValue(location);
                 int barrier = m_MapArray[base + baseOffset[i]];
-                //std::cout << "***** i = " << i << " Base = " << base << "get fire = " << nearCells[i]->getFire() <<  " Barrier = " << barrier <<"\n";
                 if (nearCells[i]->getFire() == true && barrier == 3 || nearCells[i]->getFire() == true && barrier == 0 )
                 {
                     setFire = true;                                 //recursive call to place fire
@@ -340,12 +370,6 @@ void FireRescue::placeSmoke(int location)
     {
         explosion(location);
     }
-        //std::cout << "location = " << location << "\n";
-        //for (int i=0; i<80; i++){printSmoke(i);}
-        //std::cout << "\n...........................\n";
-        //for (int i=0; i<80; i++){printFire(i);}
-        //std::cout << "\n\n";
-        //cell->printBoard();
 }
 
 
