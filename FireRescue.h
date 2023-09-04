@@ -26,18 +26,25 @@ public:
     void cycleDoor(int location);
     void checkBreach(int location);
     std::vector<MapCell*> adjacentCells(int location);
+    std::vector<int> poiList;
     void printSmoke(int location);
     void printFire(int location);
     int  baseValue(int position);
     int  getOthersideOfWall(int direction, int location);
+    int  value8;
+    int  value6;
     void shockWave(int direction, int location);
-    void damageWall(int direction, int location, int base);
+    void damageWall(int direction, int location, int base); 
+    void placeHotSpot(int location);
+    int  rollDice();
+    bool checkNewSpot();
 
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
     int  baseOffset[4]= {0,10,11,21};
     int  wallDamage = 0;
     int* m_MapArray;
     int* m_WallArray;
+    int  startUpSequence = 0;
     QLabel *damageSquare[40];
 
 private:
@@ -68,6 +75,7 @@ private:
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;
+    int hotSpots = 12;
 
     Board m_theBoard;
     

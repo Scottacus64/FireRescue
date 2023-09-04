@@ -133,7 +133,6 @@ void MapCell::printBoard()
 
 int* MapCell::getMapArray() 
 {
-    std::cout << "address of m_theMap from the MapCell class = " << &m_theMap << "\n";
     return m_theMap;
 }
 

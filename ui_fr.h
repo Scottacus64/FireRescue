@@ -33,6 +33,7 @@ public:
     QLabel *rightLowerDisk[80];
     QLabel *door[9];
     QLabel *cube[43];
+    QLabel *hs[12];
     QPushButton *startGame;
     QPushButton *doorB;
     QPushButton *fireB;
@@ -162,9 +163,25 @@ public:
                     if (col>15){xOffset+=6;}
                     
                 }
-                std::cout << location << ") Col = " << col << " Row =" << row << "\n";
+                //std::cout << location << ") Col = " << col << " Row =" << row << "\n";
                 cube[location]->setGeometry(QRect(325+xOffset, yOffset, 20, 20));
                 location ++;
+            }
+        }
+
+        /*********************** set up the HotSpot markers ********************/
+        int slot = 0;
+        int k = 0;
+        for (int i=0; i<4; i++)
+        {
+            if (i > 1){k=285;}
+            for (int j=0; j<3; j++)
+            {
+                hs[slot] = new QLabel(FireRescue);
+                hs[slot]->setObjectName("square"+QString::number(i));
+                hs[slot]->setPixmap(hotSpot);   
+                hs[slot]->setGeometry(QRect(217+(j*38), 285+(i*38)+k, 30, 30));
+                slot += 1;
             }
         }
 
