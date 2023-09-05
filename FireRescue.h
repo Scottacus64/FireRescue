@@ -23,7 +23,7 @@ public:
     void placeSmoke(int location);
     void placeFire(int location);
     void refreshBoard();
-    void cycleDoor(int location);
+    void cycleDoor(int location, int direction);
     void checkBreach(int location);
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;
@@ -41,6 +41,11 @@ public:
     void placeHazmat(int location);
     void placePOI(int location);
     void delayTimer(int delay);
+    void movePlyer(int slot, int location, int direction);
+    void spray(int location, int direction);
+    void chop(int location, int direction);
+    void carry(int location, int obj)
+    
 
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
     int  baseOffset[4]= {0,10,11,21};

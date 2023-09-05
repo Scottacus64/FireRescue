@@ -271,61 +271,71 @@ void FireRescue::on_rbClose_clicked()
 
 void FireRescue::on_arrowU_clicked()
 {
-    if (player[0]-10>-1 && action==0)
+    if (player[0]-10>-1)
     {
-        MapCell* cell = m_theBoard.GetCell(player[0]);
-        int base = baseValue(player[0]);
-        int barrier = m_MapArray[base + baseOffset[0]];
-        MapCell* dCell = m_theBoard.GetCell(player[0]-10);
-        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        if (action==0)
         {
-            cell->setFireFighter(14);
-            player[0]-=10;
-            cell = m_theBoard.GetCell(player[0]);
-            cell->setFireFighter(1);
-            refreshBoard();
+            movePlyer(0, player[0], 0);
+        }
+        else if (action==1)
+        {
+            spray(player[0],0);
+        }
+        else if (action==2)
+        {
+            chop(player[0],0);
+        }
+        else if (action==4 || action==5)
+        {
+            cycleDoor(player[0],0);
         }
     }
-
 }
 
 
 void FireRescue::on_arrowD_clicked()
 {
-    if ((player[0]+10)<80 && action==0)
+    if ((player[0]+10)<80)
     {
-        MapCell* cell = m_theBoard.GetCell(player[0]);
-        int base = baseValue(player[0]);
-        int barrier = m_MapArray[base + baseOffset[3]];
-        MapCell* dCell = m_theBoard.GetCell(player[0]+10);
-        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        if (action==0)
         {
-            cell->setFireFighter(14);
-            player[0]+=10;
-            cell = m_theBoard.GetCell(player[0]);
-            cell->setFireFighter(1);
-            refreshBoard();
+            movePlyer(0, player[0], 3);
+        }
+        else if (action==1)
+        {
+            spray(player[0],3);
+        }
+        else if (action==2)
+        {
+            chop(player[0],3);
+        }
+        else if (action==4 || action==5) 
+        {
+            cycleDoor(player[0],3);
         }
     }
-    std::cout << "player " << player[0] << "\n";
 }
 
 
 void FireRescue::on_arrowL_clicked()
 {
-    if (player[0]%10 != 0 && action==0)
+    if (player[0]%10 != 0)
     {
-        MapCell* cell = m_theBoard.GetCell(player[0]);
-        int base = baseValue(player[0]);
-        int barrier = m_MapArray[base + baseOffset[1]];
-        MapCell* dCell = m_theBoard.GetCell(player[0]-1);
-        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        if (action==0)
         {
-            cell->setFireFighter(14);
-            player[0]-=1;
-            cell = m_theBoard.GetCell(player[0]);
-            cell->setFireFighter(1);
-            refreshBoard();
+            movePlyer(0, player[0], 1);
+        }
+        else if (action==1)
+        {
+            spray(player[0],1);
+        }
+        else if (action==2)
+        {
+            chop(player[0],1);
+        }
+        else if (action==4 || action==5)
+        {
+            cycleDoor(player[0],1);
         }
     }
 }
@@ -333,21 +343,82 @@ void FireRescue::on_arrowL_clicked()
 
 void FireRescue::on_arrowR_clicked()
 {
-    if ((player[0]+1)%10 != 0 && action==0)
+    if ((player[0]+1)%10 != 0) 
     {
-        MapCell* cell = m_theBoard.GetCell(player[0]);
-        int base = baseValue(player[0]);
-        int barrier = m_MapArray[base + baseOffset[2]];
-        MapCell* dCell = m_theBoard.GetCell(player[0]+1);
-        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        if (action==0)
         {
-            cell->setFireFighter(14);
-            player[0]+=1;
-            cell = m_theBoard.GetCell(player[0]);
-            cell->setFireFighter(1);
-            refreshBoard();
+            movePlyer(0, player[0], 2);
+        }
+        else if (action==1)
+        {
+            spray(player[0],2);
+        }
+        else if (action==2)
+        {
+            chop(player[0],2);
+        }
+        else if (action==4 || action ==5)
+        {
+            cycleDoor(player[0],2);
         }
     }
+}
+
+void FireRescue::movePlyer(int slot, int location, int direction)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    int base = baseValue(location);
+    int barrier = m_MapArray[base + baseOffset[direction]];
+    int offset;
+    if (direction==0){offset = -10;}
+    else if (direction==1){offset = -1;}
+    else if (direction==2){offset = 1;}
+    else {offset = 10;}
+    MapCell* dCell = m_theBoard.GetCell(location+offset);
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+    {
+        cell->setFireFighter(14);
+        player[slot]+=offset;
+        cell = m_theBoard.GetCell(player[slot]);
+        cell->setFireFighter(slot);
+        int checkPoi = cell->getPoi();
+        if (checkPoi < 11){cell->setPoiState(true);}
+        refreshBoard();
+    }  
+}
+
+
+void FireRescue::spray(int location, int direction)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    int base = baseValue(location);
+    int barrier = m_MapArray[base + baseOffset[direction]];
+    int offset;
+    if (direction==0){offset = -10;}
+    else if (direction==1){offset = -1;}
+    else if (direction==2){offset = 1;}
+    else {offset = 10;}
+    MapCell* dCell = m_theBoard.GetCell(location+offset);
+    if ((barrier==0 || barrier==3) && dCell->getSmoke()==true)
+    {
+        dCell->setSmoke(false);
+    } 
+    if ((barrier==0 || barrier==3) && dCell->getFire()==true)
+    {
+        dCell->setFire(false);
+        dCell->setSmoke(true);
+    } 
+    refreshBoard();
+}
+
+
+void FireRescue::chop(int location, int direction)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    int base = baseValue(location);
+    int barrier = m_MapArray[base + baseOffset[direction]]; 
+    if (barrier < 3 && barrier > 0) {m_MapArray[base + baseOffset[direction]] = barrier - 1;}
+    refreshBoard();
 }
 
 
@@ -366,6 +437,7 @@ void FireRescue::refreshBoard()
         int  iFireFighter = cell->getFireFighter();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
+        if (iSmoke==false && iFire==false){ui->leftUpperDisk[i]->setPixmap(QPixmap());}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
         if (iHazmat == true){ui->rightUpperDisk[i]->setPixmap(hazmat);}
         if (iFireFighter < 6)
@@ -543,28 +615,23 @@ void FireRescue::placePOI(int location)
 }
 
 
-void FireRescue::cycleDoor(int location)
+void FireRescue::cycleDoor(int location, int direction)
 {
     MapCell* cell = m_theBoard.GetCell(location);
-    //std::cout << "............\n";
-    for (int i=0; i<4; i++)                                     // step through each cell
-    {  
-        int base = baseValue(location);
-        int barrier = m_MapArray[base + baseOffset[i]];
-        //std::cout << "\ndirection: " << i  << " barrier = " << barrier <<"\n";
-        if (barrier == 4)
-        {
-            int otherSideOfDoor = getOthersideOfWall(i, location);
-            m_MapArray[base + baseOffset[i]] = 3;         
-            MapCell* otherCell = m_theBoard.GetCell(otherSideOfDoor);    
-            checkBreach(location);
-            checkBreach(otherSideOfDoor);
-        }
-        if (barrier == 3)
-        {
-            m_MapArray[base + baseOffset[i]]= 4;
-        }
-    } 
+    int base = baseValue(location);
+    int barrier = m_MapArray[base + baseOffset[direction]];
+    if (barrier==4 && action==4) 
+    {
+        int otherSideOfDoor = getOthersideOfWall(direction, location);
+        m_MapArray[base + baseOffset[direction]] = 3;         
+        MapCell* otherCell = m_theBoard.GetCell(otherSideOfDoor);    
+        checkBreach(location);
+        checkBreach(otherSideOfDoor);
+    }
+    if (barrier==3 && action==5)
+    {
+        m_MapArray[base + baseOffset[direction]]= 4;
+    }
     refreshBoard();   
 }
 
