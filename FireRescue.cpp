@@ -64,7 +64,7 @@ FireRescue::FireRescue(QWidget *parent)
     m_WallArray = MapCell::getWallArray();
 
     for (int i=1; i<11; i++) {poiList.push_back(i);}
-    for (int i=0; i<5; i++) {poiList.push_back(11);}
+    for (int i=0; i<5; i++) {poiList.push_back(0);}
     // Shuffle the vector
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -285,6 +285,10 @@ void FireRescue::on_arrowU_clicked()
         {
             chop(player[0],0);
         }
+        else if (action==3)
+        {
+            carry(0, player[0], 0, 0);
+        }
         else if (action==4 || action==5)
         {
             cycleDoor(player[0],0);
@@ -308,6 +312,10 @@ void FireRescue::on_arrowD_clicked()
         else if (action==2)
         {
             chop(player[0],3);
+        }
+        else if (action==3)
+        {
+            carry(0, player[0], 0, 3);
         }
         else if (action==4 || action==5) 
         {
@@ -333,6 +341,10 @@ void FireRescue::on_arrowL_clicked()
         {
             chop(player[0],1);
         }
+        else if (action==3)
+        {
+            carry(0, player[0], 0, 1);
+        }
         else if (action==4 || action==5)
         {
             cycleDoor(player[0],1);
@@ -356,6 +368,10 @@ void FireRescue::on_arrowR_clicked()
         else if (action==2)
         {
             chop(player[0],2);
+        }
+        else if (action==3)
+        {
+            carry(0, player[0], 0, 2);
         }
         else if (action==4 || action ==5)
         {
@@ -419,6 +435,32 @@ void FireRescue::chop(int location, int direction)
     int barrier = m_MapArray[base + baseOffset[direction]]; 
     if (barrier < 3 && barrier > 0) {m_MapArray[base + baseOffset[direction]] = barrier - 1;}
     refreshBoard();
+}
+
+
+void FireRescue::carry(int slot, int location, int obj, int direction)
+{
+    MapCell* cell = m_theBoard.GetCell(location);
+    int base = baseValue(location);
+    int barrier = m_MapArray[base + baseOffset[direction]];
+    int offset;
+    if (direction==0){offset = -10;}
+    else if (direction==1){offset = -1;}
+    else if (direction==2){offset = 1;}
+    else {offset = 10;}
+    MapCell* dCell = m_theBoard.GetCell(location+offset);    
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false)
+    {
+        cell->setFireFighter(14);
+        int target = cell->getPoi();
+        cell->setPoi(14);
+        player[slot]+=offset;
+        cell = m_theBoard.GetCell(player[slot]);
+        cell->setFireFighter(slot);
+        cell->setPoi(target);
+        cell->setPoiState(true);
+        refreshBoard();
+    } 
 }
 
 
@@ -492,6 +534,7 @@ void FireRescue::refreshBoard()
             }
             else{ui->rightLowerDisk[i]->setPixmap(poi0);}
         }
+        if (iPoi>10) {ui->rightLowerDisk[i]->setPixmap(QPixmap());}
     }
     int doorNum;
     for (int i=0; i<178; i++)

@@ -44,7 +44,7 @@ public:
     void movePlyer(int slot, int location, int direction);
     void spray(int location, int direction);
     void chop(int location, int direction);
-    void carry(int location, int obj)
+    void carry(int slot, int location, int obj, int direction);
     
 
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
