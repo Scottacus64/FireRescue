@@ -18,6 +18,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <iostream>
 #include <QPushButton>
+#include <QRadioButton>
 
 QT_BEGIN_NAMESPACE
 
@@ -36,10 +37,19 @@ public:
     QLabel *hs[12];
     QLabel *D6;
     QLabel *D8;
+    QPushButton *arrowL;
+    QPushButton *arrowU;
+    QPushButton *arrowD;
+    QPushButton *arrowR;
     QPushButton *startGame;
-    QPushButton *doorB;
-    QPushButton *fireB;
-    QPushButton *smokeB;
+    QRadioButton *rbMove;
+    QRadioButton *rbSpray;
+    QRadioButton *rbChop;
+    QRadioButton *rbCarry;
+    QRadioButton *rbOpen;
+    QRadioButton *rbClose;
+    
+
     int theWalls[178] = {                0,0,0,0,0,0,0,0,0,0,
                                         0,0,0,0,0,0,0,0,0,0,0,
                                          0,1,2,3,4,5,0,6,7,0,
@@ -122,6 +132,11 @@ public:
         QPixmap square("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
         QPixmap r1("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r1.png");
         QPixmap b1("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b1.png");
+        QPixmap aU("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aU.png");
+        QPixmap aD("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aD.png");
+        QPixmap aL("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aL.png");
+        QPixmap aR("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aR.png");
+        QPixmap ffR("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffR.png");
         /********************** set up the grid tokens ********************/
         for (int row=0; row<8; row++)
         {
@@ -241,23 +256,68 @@ public:
         startGame->setText("Start Game");
         startGame->setCheckable(false);
 
-        doorB = new QPushButton(FireRescue);
-        doorB->setObjectName("doorB");
-        doorB->setGeometry(QRect(50, 350, 100, 100));
-        doorB->setText("Door");
-        doorB->setCheckable(false);
 
-        fireB = new QPushButton(FireRescue);
-        fireB->setObjectName("fireB");
-        fireB->setGeometry(QRect(50, 500, 100, 100));
-        fireB->setText("Fire");
-        fireB->setCheckable(false);
 
-        startGame = new QPushButton(FireRescue);
-        startGame->setObjectName("smokeB");
-        startGame->setGeometry(QRect(50, 650, 100, 100));
-        startGame->setText("Smoke");
-        startGame->setCheckable(false);
+        /************** set up the Arrows ***************/
+        arrowL = new QPushButton(FireRescue);
+        arrowL->setObjectName("arrowL");
+        arrowL->setGeometry(QRect(30, 880, 50, 50));
+        arrowL->setCheckable(false);
+        arrowL->setIcon(QIcon(aL));
+        arrowL->setIconSize(QSize(50, 50));
+        arrowL->setStyleSheet("border: none; background-color: transparent;");
+
+        arrowR = new QPushButton(FireRescue);
+        arrowR->setObjectName("arrowR");
+        arrowR->setGeometry(QRect(110, 880, 50, 50));
+        arrowR->setCheckable(false);
+        arrowR->setIcon(QIcon(aR));
+        arrowR->setIconSize(QSize(50, 50));
+        arrowR->setStyleSheet("border: none; background-color: transparent;");
+
+        arrowU = new QPushButton(FireRescue);
+        arrowU->setObjectName("arrowU");
+        arrowU->setGeometry(QRect(70, 840, 50, 50));
+        arrowU->setCheckable(false);
+        arrowU->setIcon(QIcon(aU));
+        arrowU->setIconSize(QSize(50, 50));
+        arrowU->setStyleSheet("border: none; background-color: transparent;");
+
+        arrowD = new QPushButton(FireRescue);
+        arrowD->setObjectName("arrowD");
+        arrowD->setGeometry(QRect(70, 920, 50, 50));
+        arrowD->setCheckable(false);
+        arrowD->setIcon(QIcon(aD));
+        arrowD->setIconSize(QSize(50, 50));
+        arrowD->setStyleSheet("border: none; background-color: transparent;");
+
+        rbMove = new QRadioButton(FireRescue);
+        rbSpray = new QRadioButton(FireRescue);
+        rbChop = new QRadioButton(FireRescue);
+        rbCarry = new QRadioButton(FireRescue);
+        rbOpen = new QRadioButton(FireRescue);
+        rbClose = new QRadioButton(FireRescue);
+
+        rbMove->setText("Move");
+        rbSpray->setText("Spray");
+        rbChop->setText("Chop");
+        rbCarry->setText("Carry");
+        rbOpen->setText("Open");
+        rbClose->setText("Close");
+
+        rbMove->setGeometry(50, 400, 150, 40);
+        rbSpray->setGeometry(50, 450, 150, 40);
+        rbChop->setGeometry(50, 500, 150, 40);
+        rbCarry->setGeometry(50, 550, 150, 40);
+        rbOpen->setGeometry(50, 600, 150, 40);
+        rbClose->setGeometry(50, 650, 150, 40);
+
+        rbMove->setObjectName("rbMove");
+        rbSpray->setObjectName("rbSpray");
+        rbChop->setObjectName("rbChop");
+        rbCarry->setObjectName("rbCarry");
+        rbOpen->setObjectName("rbOpen");
+        rbClose->setObjectName("rbClose");
         
         retranslateUi(FireRescue);
 

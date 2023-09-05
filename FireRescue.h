@@ -47,6 +47,8 @@ public:
     int  wallDamage = 0;
     int* m_MapArray;
     int* m_WallArray;
+    int  player[5];
+    int  action;            // 0 = move, 1 = spray, 2 = chop, 3 = carry
     QLabel *damageSquare[40];
 
 private:
@@ -71,6 +73,8 @@ private:
     QPixmap poi10;
     QPixmap poiBlank;
 
+    QPixmap ff[6];
+
     QPixmap greySquare;
     QPixmap blackSquare;
 
@@ -89,8 +93,16 @@ private:
 private slots:
     void on_tableWidget_cellClicked(int row, int column);
     void on_startGame_clicked();
-    void on_doorB_clicked();
-    void on_fireB_clicked();
-    void on_smokeB_clicked();
+    void on_rbMove_clicked();
+    void on_rbSpray_clicked();
+    void on_rbChop_clicked();
+    void on_rbCarry_clicked();
+    void on_rbOpen_clicked();
+    void on_rbClose_clicked();
+    void on_arrowU_clicked();
+    void on_arrowD_clicked();
+    void on_arrowL_clicked();
+    void on_arrowR_clicked();
+
 };
 #endif // FIRERESCUE_H

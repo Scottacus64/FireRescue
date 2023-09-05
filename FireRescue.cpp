@@ -31,6 +31,13 @@ FireRescue::FireRescue(QWidget *parent)
 
     poiBlank.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sPOIblank.png");
 
+    ff[0].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffB.png");
+    ff[1].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffG.png");
+    ff[2].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffR.png");
+    ff[3].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffO.png");
+    ff[4].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffY.png");
+    ff[5].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffW.png");
+
     D6[1] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r1.png");
     D6[2] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r2.png");
     D6[3] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r3.png");
@@ -46,6 +53,8 @@ FireRescue::FireRescue(QWidget *parent)
     D8[6] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b6.png");
     D8[7] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b7.png");
     D8[8] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b8.png");
+
+
 
     greySquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
     blackSquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
@@ -74,18 +83,7 @@ FireRescue::~FireRescue()
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
     int gridLocation = (row*10) + col;
-    if (smokeOn == true)
-    {
-        placeSmoke(gridLocation);
-    }
-    else if (fireOn == true)
-    {
-        placeFire(gridLocation);
-    }
-    else
-    {
-        cycleDoor(gridLocation);
-    }
+
     refreshBoard();
 }
 
@@ -191,9 +189,13 @@ void FireRescue::setUpGame()
             }
             placeHotSpot(location);
             delayTimer(500);
-        }
-        ui->label->setText("Player 1 Up");
+        }        
     }
+    ui->label->setVisible(false);
+    player[0]= 6;
+    MapCell* cell = m_theBoard.GetCell(6);
+    cell->setFireFighter(1);
+    refreshBoard();
 }
 
 void FireRescue::delayTimer(int delay)
@@ -218,9 +220,6 @@ bool FireRescue::checkNewSpot(int slot)
 
 void FireRescue::rollDice(int slot)
 {
-    
-    //QTimer timer;
-    //timer.setInterval(25);
     for (int j=0; j<10; j++)
     {
         delayTimer(25);
@@ -228,11 +227,6 @@ void FireRescue::rollDice(int slot)
         value6 = die.rollDie(6);
         ui->D6->setPixmap(D6[value6]);
         ui->D8->setPixmap(D8[value8]);
-        /*timer.start();
-        // Use a loop to wait until the QTimer times out (25ms)
-        QEventLoop loop;
-        QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-        loop.exec();*/
     }
 
     
@@ -244,26 +238,116 @@ void FireRescue::on_startGame_clicked()
     setUpGame();
 }
 
-void FireRescue::on_doorB_clicked()
+void FireRescue::on_rbMove_clicked()
 {
-    doorOn = true;
-    fireOn = false;
-    smokeOn = false;
-    refreshBoard();
+    action = 0;
 }
 
-void FireRescue::on_fireB_clicked()
+void FireRescue::on_rbSpray_clicked()
 {
-    doorOn = false;
-    fireOn = true;
-    smokeOn = false;
+    action = 1;
 }
 
-void FireRescue::on_smokeB_clicked()
+void FireRescue::on_rbChop_clicked()
 {
-    doorOn = false;
-    fireOn = false;
-    smokeOn = true;
+    action = 2;
+}
+
+void FireRescue::on_rbCarry_clicked()
+{
+    action = 3;
+}
+
+void FireRescue::on_rbOpen_clicked()
+{
+    action = 4;
+}
+
+void FireRescue::on_rbClose_clicked()
+{
+    action = 5;
+}
+
+
+void FireRescue::on_arrowU_clicked()
+{
+    if (player[0]-10>-1 && action==0)
+    {
+        MapCell* cell = m_theBoard.GetCell(player[0]);
+        int base = baseValue(player[0]);
+        int barrier = m_MapArray[base + baseOffset[0]];
+        MapCell* dCell = m_theBoard.GetCell(player[0]-10);
+        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        {
+            cell->setFireFighter(14);
+            player[0]-=10;
+            cell = m_theBoard.GetCell(player[0]);
+            cell->setFireFighter(1);
+            refreshBoard();
+        }
+    }
+
+}
+
+
+void FireRescue::on_arrowD_clicked()
+{
+    if ((player[0]+10)<80 && action==0)
+    {
+        MapCell* cell = m_theBoard.GetCell(player[0]);
+        int base = baseValue(player[0]);
+        int barrier = m_MapArray[base + baseOffset[3]];
+        MapCell* dCell = m_theBoard.GetCell(player[0]+10);
+        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        {
+            cell->setFireFighter(14);
+            player[0]+=10;
+            cell = m_theBoard.GetCell(player[0]);
+            cell->setFireFighter(1);
+            refreshBoard();
+        }
+    }
+    std::cout << "player " << player[0] << "\n";
+}
+
+
+void FireRescue::on_arrowL_clicked()
+{
+    if (player[0]%10 != 0 && action==0)
+    {
+        MapCell* cell = m_theBoard.GetCell(player[0]);
+        int base = baseValue(player[0]);
+        int barrier = m_MapArray[base + baseOffset[1]];
+        MapCell* dCell = m_theBoard.GetCell(player[0]-1);
+        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        {
+            cell->setFireFighter(14);
+            player[0]-=1;
+            cell = m_theBoard.GetCell(player[0]);
+            cell->setFireFighter(1);
+            refreshBoard();
+        }
+    }
+}
+
+
+void FireRescue::on_arrowR_clicked()
+{
+    if ((player[0]+1)%10 != 0 && action==0)
+    {
+        MapCell* cell = m_theBoard.GetCell(player[0]);
+        int base = baseValue(player[0]);
+        int barrier = m_MapArray[base + baseOffset[2]];
+        MapCell* dCell = m_theBoard.GetCell(player[0]+1);
+        if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+        {
+            cell->setFireFighter(14);
+            player[0]+=1;
+            cell = m_theBoard.GetCell(player[0]);
+            cell->setFireFighter(1);
+            refreshBoard();
+        }
+    }
 }
 
 
@@ -284,6 +368,14 @@ void FireRescue::refreshBoard()
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
         if (iHazmat == true){ui->rightUpperDisk[i]->setPixmap(hazmat);}
+        if (iFireFighter < 6)
+        {
+            ui->leftLowerDisk[i]->setPixmap(ff[iFireFighter]);
+        }
+        else
+        {
+            ui->leftLowerDisk[i]->setPixmap(QPixmap());
+        }
 
         if (iPoi < 14)
         {
