@@ -27,6 +27,7 @@ public:
     void checkBreach(int location);
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;
+    std::vector<std::pair<int, int>> poiPair;
     void printSmoke(int location);
     void printFire(int location);
     int  baseValue(int position);
@@ -45,16 +46,25 @@ public:
     void spray(int location, int direction);
     void chop(int location, int direction);
     void carry(int slot, int location, int obj, int direction);
+    void placeFF();
+
     
 
+    void ffDialog();
+    
     int  doorArray[8] = {35,58,71,76,101,109,142,144};  
     int  baseOffset[4]= {0,10,11,21};
     int  wallDamage = 0;
     int* m_MapArray;
     int* m_WallArray;
-    int  player[5];
-    int  action;            // 0 = move, 1 = spray, 2 = chop, 3 = carry
+    std::vector<int> players;
+    int  action;            // 0 = move, 1 = spray, 2 = chop, 3 = carry, 4 = open, 5 = close
+    int  ffNumber;
+    int  activeFF = 0;
+    bool ffBlock = true;
     QLabel *damageSquare[40];
+    QCursor cursorFF1;
+
 
 private:
     Ui::FireRescue *ui;
@@ -78,6 +88,9 @@ private:
     QPixmap poi10;
     QPixmap poiBlank;
 
+    QPixmap cursorIconFF1;
+
+
     QPixmap ff[6];
 
     QPixmap greySquare;
@@ -89,10 +102,11 @@ private:
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;
-    int hotSpots = 12;
+    int  hotSpots = 12;
+    int  gridLocation;
+
 
     Board m_theBoard;
-    
     
 
 private slots:
@@ -104,6 +118,7 @@ private slots:
     void on_rbCarry_clicked();
     void on_rbOpen_clicked();
     void on_rbClose_clicked();
+    void on_rbEndTurn_clicked();
     void on_arrowU_clicked();
     void on_arrowD_clicked();
     void on_arrowL_clicked();

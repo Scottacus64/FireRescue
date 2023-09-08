@@ -19,6 +19,7 @@
 #include <iostream>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 
@@ -37,6 +38,12 @@ public:
     QLabel *hs[12];
     QLabel *D6;
     QLabel *D8;
+    QLabel *damage;
+    QLabel *personsSaved;
+    QLabel *personsLost;
+    QLabel *ffUp;
+    QLabel *ffUpIcon;
+    QLabel *information;
     QPushButton *arrowL;
     QPushButton *arrowU;
     QPushButton *arrowD;
@@ -48,6 +55,8 @@ public:
     QRadioButton *rbCarry;
     QRadioButton *rbOpen;
     QRadioButton *rbClose;
+    QRadioButton *rbEndTurn;
+    QDialog *ffDialog;
     
 
     int theWalls[178] = {                0,0,0,0,0,0,0,0,0,0,
@@ -82,7 +91,40 @@ public:
         backgroundLabel->setPixmap(bkgnd);
         backgroundLabel->setGeometry(QRect(200, 0, 1400, 1000));
 
+ /********************** set up the grid tokens ********************/
+        for (int row=0; row<8; row++)
+        {
+            for (int col=0; col<10; col++)
+            {
+                int x = (row*10)+col;
+                centerDisk[x] = new QLabel(FireRescue); 
+                centerDisk[x]->setObjectName("centerDisk"+QString::number(x));
+                centerDisk[x]->setPixmap(QPixmap());
+                centerDisk[x]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));
 
+                leftUpperDisk[x] = new QLabel(FireRescue); 
+                leftUpperDisk[x]->setObjectName("leftUpperDisk"+QString::number(x));
+                leftUpperDisk[x]->setPixmap(QPixmap());
+                leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));
+
+                leftLowerDisk[x] = new QLabel(FireRescue); 
+                leftLowerDisk[x]->setObjectName("leftLowerDisk"+QString::number(x));
+                leftLowerDisk[x]->setPixmap(QPixmap());
+                leftLowerDisk[x]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));
+
+                rightLowerDisk[x] = new QLabel(FireRescue); 
+                rightLowerDisk[x]->setObjectName("rightLowerDisk"+QString::number(x));
+                rightLowerDisk[x]->setPixmap(QPixmap());
+                rightLowerDisk[x]->setGeometry(QRect(392+(col*127), 65+(row*125), 60, 60));
+
+                rightUpperDisk[x] = new QLabel(FireRescue); 
+                rightUpperDisk[x]->setObjectName("rightUpperDisk"+QString::number(x));
+                rightUpperDisk[x]->setPixmap(QPixmap());
+                rightUpperDisk[x]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
+
+                
+            }
+        }
         /*********************** set up the QTable ********************/
 
         tableWidget = new QTableWidget(FireRescue);
@@ -137,40 +179,7 @@ public:
         QPixmap aL("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aL.png");
         QPixmap aR("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aR.png");
         QPixmap ffR("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffR.png");
-        /********************** set up the grid tokens ********************/
-        for (int row=0; row<8; row++)
-        {
-            for (int col=0; col<10; col++)
-            {
-                int x = (row*10)+col;
-                centerDisk[x] = new QLabel(FireRescue); 
-                centerDisk[x]->setObjectName("centerDisk"+QString::number(x));
-                centerDisk[x]->setPixmap(QPixmap());
-                centerDisk[x]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));
-
-                leftUpperDisk[x] = new QLabel(FireRescue); 
-                leftUpperDisk[x]->setObjectName("leftUpperDisk"+QString::number(x));
-                leftUpperDisk[x]->setPixmap(QPixmap());
-                leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));
-
-                leftLowerDisk[x] = new QLabel(FireRescue); 
-                leftLowerDisk[x]->setObjectName("leftLowerDisk"+QString::number(x));
-                leftLowerDisk[x]->setPixmap(QPixmap());
-                leftLowerDisk[x]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));
-
-                rightLowerDisk[x] = new QLabel(FireRescue); 
-                rightLowerDisk[x]->setObjectName("rightLowerDisk"+QString::number(x));
-                rightLowerDisk[x]->setPixmap(QPixmap());
-                rightLowerDisk[x]->setGeometry(QRect(392+(col*127), 65+(row*125), 60, 60));
-
-                rightUpperDisk[x] = new QLabel(FireRescue); 
-                rightUpperDisk[x]->setObjectName("rightUpperDisk"+QString::number(x));
-                rightUpperDisk[x]->setPixmap(QPixmap());
-                rightUpperDisk[x]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
-
-                
-            }
-        }
+       
 
         /********************** set up the doors ********************/
         for (int i=0; i<9; i++)
@@ -189,7 +198,7 @@ public:
         door[7]->setGeometry(QRect( 1065, 770 ,60, 60));
         door[8]->setGeometry(QRect( 1325, 775 ,60, 60));
 
-        /********************** set up the squares ********************/
+        /********************** set up the damage cubes ********************/
         for (int i=0; i<43; i++)
         {
             cube[i] = new QLabel(FireRescue);
@@ -252,11 +261,30 @@ public:
        
         startGame = new QPushButton(FireRescue);
         startGame->setObjectName("startGame");
-        startGame->setGeometry(QRect(50, 200, 100, 100));
+        startGame->setGeometry(QRect(50, 125, 100, 50));
         startGame->setText("Start Game");
         startGame->setCheckable(false);
 
+        /************** set up the game value displays ********************/
+        damage = new QLabel(FireRescue);
+        personsLost = new QLabel(FireRescue);
+        personsSaved = new QLabel(FireRescue);
+        ffUp = new QLabel(FireRescue);
+        ffUpIcon = new QLabel(FireRescue);
+        information = new QLabel(FireRescue);
+        damage->setGeometry(QRect(30,200, 150, 40));
+        damage->setText("Damage = 0");
+        personsSaved->setGeometry(QRect(30,240,150,40));
+        personsSaved->setText("Persons Saved = 0");
+        personsLost->setGeometry(QRect(30,280,150,40));
+        personsLost->setText("Persons Lost = 0");
+        ffUp->setGeometry(QRect(30,320,150,40));
 
+        ffUpIcon->setGeometry(QRect(50,360,50,50));
+
+        information->setGeometry(QRect(10,420,180,150));
+        information->setStyleSheet("border: 2px solid black;");
+        information->setWordWrap(true);
 
         /************** set up the Arrows ***************/
         arrowL = new QPushButton(FireRescue);
@@ -291,12 +319,15 @@ public:
         arrowD->setIconSize(QSize(50, 50));
         arrowD->setStyleSheet("border: none; background-color: transparent;");
 
+        /*************** set up radio buttons ****************/
+
         rbMove = new QRadioButton(FireRescue);
         rbSpray = new QRadioButton(FireRescue);
         rbChop = new QRadioButton(FireRescue);
         rbCarry = new QRadioButton(FireRescue);
         rbOpen = new QRadioButton(FireRescue);
         rbClose = new QRadioButton(FireRescue);
+        rbEndTurn = new QRadioButton(FireRescue);
 
         rbMove->setText("Move");
         rbSpray->setText("Spray");
@@ -304,13 +335,15 @@ public:
         rbCarry->setText("Carry");
         rbOpen->setText("Open");
         rbClose->setText("Close");
+        rbEndTurn->setText("End Turn");
 
-        rbMove->setGeometry(50, 400, 150, 40);
-        rbSpray->setGeometry(50, 450, 150, 40);
-        rbChop->setGeometry(50, 500, 150, 40);
-        rbCarry->setGeometry(50, 550, 150, 40);
-        rbOpen->setGeometry(50, 600, 150, 40);
-        rbClose->setGeometry(50, 650, 150, 40);
+        rbMove->setGeometry(50, 560, 150, 40);
+        rbSpray->setGeometry(50, 600, 150, 40);
+        rbChop->setGeometry(50, 640, 150, 40);
+        rbCarry->setGeometry(50, 680, 150, 40);
+        rbOpen->setGeometry(50, 720, 150, 40);
+        rbClose->setGeometry(50, 760, 150, 40);
+        rbEndTurn->setGeometry(50, 800, 150, 40);
 
         rbMove->setObjectName("rbMove");
         rbSpray->setObjectName("rbSpray");
@@ -319,6 +352,7 @@ public:
         rbOpen->setObjectName("rbOpen");
         rbClose->setObjectName("rbClose");
         
+
         retranslateUi(FireRescue);
 
         QMetaObject::connectSlotsByName(FireRescue);

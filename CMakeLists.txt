@@ -22,7 +22,9 @@ set(PROJECT_SOURCES
         MapCell.h 
         MapCell.cpp 
         Board.h 
-        Board.cpp 
+        Board.cpp
+        ffDialog.h 
+        ffDialog.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

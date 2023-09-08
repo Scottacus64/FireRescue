@@ -40,12 +40,14 @@ public:
 private:
     static int m_theMap[178];
     static int m_theWalls[178];
+    static int m_poiList[16];
                          
     bool fire;
     bool smoke;
     bool hazmat;
     bool checked;
     int  poi;
+
     bool poiState;
     bool hotSpot;
     int  fireFighter;
@@ -53,6 +55,8 @@ private:
     int  door;
     int  doorState;
     int  m_index;
+    
+
     std::unordered_map<int, int> cellToDoorMap;
 
 
