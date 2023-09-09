@@ -86,30 +86,41 @@ FireRescue::~FireRescue()
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
     gridLocation = (row*10) + col;
+    MapCell* cell = m_theBoard.GetCell(gridLocation); 
+    bool onFire = cell->getFire();
     int slot = players.size();
     std::cout << gridLocation << "\n";
-    if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true)
+
+    if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false)
     {    
         std::cout << slot  << " " << gridLocation << "\n";
         MapCell* cell = m_theBoard.GetCell(gridLocation);
         cell->setFireFighter(slot);
-        players.push_back(gridLocation);
+        ffMoves = 0;
+        std::pair <int,int> ffPair(gridLocation, ffMoves);
+        players.push_back(ffPair);
+        if (slot+1 < ffNumber) 
+        {
+            placeFF();
+        }
+        else 
+        {
+            ffBlock = false;
+            activeFF = 0;
+            playerTurn();
+        }
     }
-    if (slot+1 < ffNumber) 
-    {
-        placeFF();
-     }
-     else 
-     {
-        ffBlock = false;
-        ui->ffUp->setText("Fire Fighter "+ QString::number(0));
-        ui->ffUpIcon->setPixmap(ff[0]);
-        ui->information->setText("Fire Fighter One is up!");
-    }
-
     refreshBoard();
 }
 
+
+void FireRescue::nextPlayer()
+{
+    players[activeFF].second = ffMoves;
+    activeFF ++;
+    if (activeFF+1 > ffNumber) {activeFF = 0;}
+    playerTurn();
+}
 
 
 void FireRescue::setUpGame()
@@ -229,6 +240,15 @@ void FireRescue::placeFF()
 }
 
 
+void FireRescue::playerTurn()
+{
+    ffMoves = players[activeFF].second + 5;
+    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
+    ui->ffUpIcon->setPixmap(ff[activeFF]);
+    ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
+}
+
+
 void FireRescue::ffDialog() 
 {
     FfDialog *ffDialog = new FfDialog(this);
@@ -291,151 +311,104 @@ void FireRescue::on_startGame_clicked()
 
 void FireRescue::on_rbMove_clicked()
 {
-    action = 0;
+    if (ffBlock == false) {action = 0;}
 }
 
 void FireRescue::on_rbSpray_clicked()
 {
-    std::cout << "SPRAY\n";
-    action = 1;
+
+    if (ffBlock == false) {action = 1;}
 }
 
 void FireRescue::on_rbChop_clicked()
 {
-    action = 2;
+    if (ffBlock == false) {action = 2;}
 }
 
 void FireRescue::on_rbCarry_clicked()
 {
-    action = 3;
+    if (ffBlock == false) {action = 3;}
 }
 
 void FireRescue::on_rbOpen_clicked()
 {
-    action = 4;
+    if (ffBlock == false) {action = 4;}
 }
 
 void FireRescue::on_rbClose_clicked()
 {
-    action = 5;
+   if (ffBlock == false) {action = 5;}
 }
 
 void FireRescue::on_rbEndTurn_clicked()
 {
-    action = 6;
+    if (ffBlock == false) {nextPlayer();}
 }
 
 
 void FireRescue::on_arrowU_clicked()
 {
-    if (players[activeFF]-10>-1)
-    {
-        if (action==0)
-        {
-            movePlyer(0, players[activeFF], 0);
-        }
-        else if (action==1)
-        {
-            spray(players[activeFF],0);
-        }
-        else if (action==2)
-        {
-            chop(players[activeFF],0);
-        }
-        else if (action==3)
-        {
-            carry(0, players[activeFF], 0, 0);
-        }
-        else if (action==4 || action==5)
-        {
-            cycleDoor(players[activeFF],0);
-        }
-    }
+    if (ffBlock == false) {universalAction(0); }
 }
 
 
 void FireRescue::on_arrowD_clicked()
 {
-    if ((players[activeFF]+10)<80)
-    {
-        if (action==0)
-        {
-            movePlyer(0, players[activeFF], 3);
-        }
-        else if (action==1)
-        {
-            spray(players[activeFF],3);
-        }
-        else if (action==2)
-        {
-            chop(players[activeFF],3);
-        }
-        else if (action==3)
-        {
-            carry(0, players[activeFF], 0, 3);
-        }
-        else if (action==4 || action==5) 
-        {
-            cycleDoor(players[activeFF],3);
-        }
-    }
+    if (ffBlock == false){universalAction(3);}
 }
 
 
 void FireRescue::on_arrowL_clicked()
 {
-    if (players[activeFF]%10 != 0)
-    {
-        if (action==0)
-        {
-            movePlyer(0, players[activeFF], 1);
-        }
-        else if (action==1)
-        {
-            spray(players[activeFF],1);
-        }
-        else if (action==2)
-        {
-            chop(players[activeFF],1);
-        }
-        else if (action==3)
-        {
-            carry(0, players[activeFF], 0, 1);
-        }
-        else if (action==4 || action==5)
-        {
-            cycleDoor(players[activeFF],1);
-        }
-    }
+    if (ffBlock == false){universalAction(1); }
 }
 
 
 void FireRescue::on_arrowR_clicked()
 {
-    if ((players[activeFF]+1)%10 != 0) 
+    if (ffBlock == false) {universalAction(2);}
+}
+
+void FireRescue::universalAction(int direction)
+{
+    int offest, limit;
+    bool takeAction = false;
+    if (direction==0){takeAction = players[activeFF].first-10>-1;}
+    else if (direction==1){takeAction = players[activeFF].first%10 != 0;}
+    else if (direction==2){takeAction = (players[activeFF].first+1)%10 != 0;}
+    else {takeAction = (players[activeFF].first+10)<80;}
+    if (takeAction == true)
     {
         if (action==0)
         {
-            movePlyer(0, players[activeFF], 2);
+            movePlyer(activeFF, players[activeFF].first, direction);
+            ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==1)
         {
-            spray(players[activeFF],2);
+            spray(players[activeFF].first,direction);
+            ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==2)
         {
-            chop(players[activeFF],2);
+            chop(players[activeFF].first,direction);
+            ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
-        else if (action==3)
+        else if (action==3 && ffMoves >1)
         {
-            carry(0, players[activeFF], 0, 2);
+            carry(activeFF, players[activeFF].first, 0, direction);
+            ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
-        else if (action==4 || action ==5)
+        else if (action==4 || action==5) 
         {
-            cycleDoor(players[activeFF],2);
+            cycleDoor(players[activeFF].first,direction);
+            ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
     }
-}
+}    
+
+
+
 
 void FireRescue::movePlyer(int slot, int location, int direction)
 {
@@ -448,16 +421,36 @@ void FireRescue::movePlyer(int slot, int location, int direction)
     else if (direction==2){offset = 1;}
     else {offset = 10;}
     MapCell* dCell = m_theBoard.GetCell(location+offset);
-    if ((barrier==0 || barrier==3) && dCell->getFire()==false)
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false && ffMoves>0)
     {
-        cell->setFireFighter(14);
-        players[slot]+=offset;
-        cell = m_theBoard.GetCell(players[slot]);
+        //cell->setFireFighter(14);
+        players[slot].first+=offset;
+        cell = m_theBoard.GetCell(players[slot].first);
         cell->setFireFighter(slot);
         int checkPoi = cell->getPoi();
         if (checkPoi < 11){cell->setPoiState(true);}
-        refreshBoard();
+        ffMoves --;
+        redrawFF();
     }  
+}
+
+
+void FireRescue::redrawFF()
+{
+    for (int i=0; i<80; i++)
+    {
+        MapCell* fCell = m_theBoard.GetCell(i);
+        fCell->setFireFighter(14);    
+    }
+    int ff = activeFF;
+    for (int j=0; j<ffNumber; j++)
+    {
+        ff = ff+1;
+        if (ff+1> ffNumber){ff = 0;}
+        MapCell* fCell = m_theBoard.GetCell(players[ff].first);
+        fCell->setFireFighter(ff);
+    }
+    refreshBoard();
 }
 
 
@@ -472,14 +465,16 @@ void FireRescue::spray(int location, int direction)
     else if (direction==2){offset = 1;}
     else {offset = 10;}
     MapCell* dCell = m_theBoard.GetCell(location+offset);
-    if ((barrier==0 || barrier==3) && dCell->getSmoke()==true)
+    if ((barrier==0 || barrier==3) && dCell->getSmoke()==true && ffMoves>0)
     {
         dCell->setSmoke(false);
+        ffMoves --;
     } 
-    if ((barrier==0 || barrier==3) && dCell->getFire()==true)
+    if ((barrier==0 || barrier==3) && dCell->getFire()==true && ffMoves>0)
     {
         dCell->setFire(false);
         dCell->setSmoke(true);
+        ffMoves --;
     } 
     refreshBoard();
 }
@@ -490,7 +485,7 @@ void FireRescue::chop(int location, int direction)
     MapCell* cell = m_theBoard.GetCell(location);
     int base = baseValue(location);
     int barrier = m_MapArray[base + baseOffset[direction]]; 
-    if (barrier < 3 && barrier > 0) {m_MapArray[base + baseOffset[direction]] = barrier - 1;}
+    if (barrier < 3 && barrier > 0 && ffMoves>0) {m_MapArray[base + baseOffset[direction]] = barrier - 1;ffMoves--;}
     refreshBoard();
 }
 
@@ -506,17 +501,18 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     else if (direction==2){offset = 1;}
     else {offset = 10;}
     MapCell* dCell = m_theBoard.GetCell(location+offset);    
-    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false)
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1)
     {
         cell->setFireFighter(14);
         int target = cell->getPoi();
         cell->setPoi(14);
-        players[slot]+=offset;
-        cell = m_theBoard.GetCell(players[slot]);
+        players[slot].first += offset;
+        cell = m_theBoard.GetCell(players[slot].first);
         cell->setFireFighter(slot);
         cell->setPoi(target);
         cell->setPoiState(true);
-        refreshBoard();
+        ffMoves -=2;
+        redrawFF();
     } 
 }
 
@@ -722,17 +718,19 @@ void FireRescue::cycleDoor(int location, int direction)
     MapCell* cell = m_theBoard.GetCell(location);
     int base = baseValue(location);
     int barrier = m_MapArray[base + baseOffset[direction]];
-    if (barrier==4 && action==4) 
+    if (barrier==4 && action==4 && ffMoves>0) 
     {
         int otherSideOfDoor = getOthersideOfWall(direction, location);
         m_MapArray[base + baseOffset[direction]] = 3;         
         MapCell* otherCell = m_theBoard.GetCell(otherSideOfDoor);    
         checkBreach(location);
+        ffMoves --;
         checkBreach(otherSideOfDoor);
     }
     if (barrier==3 && action==5)
     {
         m_MapArray[base + baseOffset[direction]]= 4;
+        ffMoves --;
     }
     refreshBoard();   
 }

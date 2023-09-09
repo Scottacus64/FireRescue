@@ -351,6 +351,7 @@ public:
         rbCarry->setObjectName("rbCarry");
         rbOpen->setObjectName("rbOpen");
         rbClose->setObjectName("rbClose");
+        rbEndTurn->setObjectName("rbEndTurn");
         
 
         retranslateUi(FireRescue);
