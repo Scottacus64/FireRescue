@@ -7,6 +7,7 @@
 #include <QTimer>
 #include "ffDialog.h"
 
+/* win is 7 POI rescued, loss is 4 POI lost or building collapse 24 damage markers*/
 
 FireRescue::FireRescue(QWidget *parent)
     : QWidget(parent)
@@ -67,7 +68,7 @@ FireRescue::FireRescue(QWidget *parent)
     {
         poiList.push_back(i);
     }
-    for (int i=0; i<5; i++) {poiList.push_back(0);}
+    for (int i=0; i<5; i++) {poiList.push_back(0);}         // 0 is a blank POI chip
     // Shuffle the vector
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -119,6 +120,7 @@ void FireRescue::nextPlayer()
     players[activeFF].second = ffMoves;
     activeFF ++;
     if (activeFF+1 > ffNumber) {activeFF = 0;}
+    redrawFF();
     playerTurn();
 }
 
@@ -440,7 +442,8 @@ void FireRescue::redrawFF()
     for (int i=0; i<80; i++)
     {
         MapCell* fCell = m_theBoard.GetCell(i);
-        fCell->setFireFighter(14);    
+        fCell->setFireFighter(14); 
+        fCell->setPoi(14);   
     }
     int ff = activeFF;
     for (int j=0; j<ffNumber; j++)
@@ -449,6 +452,11 @@ void FireRescue::redrawFF()
         if (ff+1> ffNumber){ff = 0;}
         MapCell* fCell = m_theBoard.GetCell(players[ff].first);
         fCell->setFireFighter(ff);
+    }
+    for (int k=0; k<3; k++)
+    {
+        MapCell* pCell = m_theBoard.GetCell(poiPair[k].second);
+        pCell->setPoi(poiPair[k].first);
     }
     refreshBoard();
 }
@@ -496,21 +504,27 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     int base = baseValue(location);
     int barrier = m_MapArray[base + baseOffset[direction]];
     int offset;
+    int poiSlot = 20;
+    for (int i=0; i<3; i++)
+    {
+        if (poiPair[i].second == location && poiPair[i].first != 0) {poiSlot = i;}
+    }
     if (direction==0){offset = -10;}
     else if (direction==1){offset = -1;}
     else if (direction==2){offset = 1;}
     else {offset = 10;}
     MapCell* dCell = m_theBoard.GetCell(location+offset);    
-    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1)
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && poiSlot < 20)
     {
         cell->setFireFighter(14);
-        int target = cell->getPoi();
+        int target = poiPair[poiSlot].first;
         cell->setPoi(14);
         players[slot].first += offset;
         cell = m_theBoard.GetCell(players[slot].first);
         cell->setFireFighter(slot);
         cell->setPoi(target);
         cell->setPoiState(true);
+        poiPair[poiSlot].second = location + offset;
         ffMoves -=2;
         redrawFF();
     } 
