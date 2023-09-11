@@ -27,7 +27,7 @@ public:
     void checkBreach(int location);
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
-    std::vector<std::pair<int, int>> poiPair;                   // pair of POI and POI location 
+    std::vector<std::pair<int, int>> poiPair;                   // pair of POI number and POI location 
     int  baseValue(int position);
     int  getOthersideOfWall(int direction, int location);
     int  value8;
@@ -51,7 +51,7 @@ public:
     void printSmoke(int location);
     void printFire(int location);
     void universalAction(int direction);
-    void redrawFF();
+    void redrawPoi();
     
     void ffDialog();
     
@@ -69,7 +69,7 @@ public:
 
     bool ffBlock = true;        // blocker to keep rb's inactive while setting the number of ff
     QLabel *damageSquare[40];
-
+    
 
 private:
     Ui::FireRescue *ui;
@@ -80,21 +80,9 @@ private:
     QPixmap hazmat;
     QPixmap doorOpen;
     QPixmap doorClosed;
-    QPixmap poi0;
-    QPixmap poi1;
-    QPixmap poi2;
-    QPixmap poi3;
-    QPixmap poi4;
-    QPixmap poi5;
-    QPixmap poi6;
-    QPixmap poi7;
-    QPixmap poi8;
-    QPixmap poi9;
-    QPixmap poi10;
+    QPixmap poi[12];
+
     QPixmap poiBlank;
-
-    QPixmap cursorIconFF1;
-
 
     QPixmap ff[6];
 
@@ -110,8 +98,11 @@ private:
     int  hotSpots = 12;
     int  gridLocation;
 
-
+    QList<QLabel *> labels;
     Board m_theBoard;
+
+    QLabel *ffExtra[6];
+    QLabel *poiExtra[3];
     
 
 private slots:
@@ -128,6 +119,8 @@ private slots:
     void on_arrowD_clicked();
     void on_arrowL_clicked();
     void on_arrowR_clicked();
+
+
 
 };
 #endif // FIRERESCUE_H

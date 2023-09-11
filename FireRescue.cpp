@@ -6,6 +6,7 @@
 #include <random>
 #include <QTimer>
 #include "ffDialog.h"
+#include <QMap>
 
 /* win is 7 POI rescued, loss is 4 POI lost or building collapse 24 damage markers*/
 
@@ -19,20 +20,21 @@ FireRescue::FireRescue(QWidget *parent)
     hazmat.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHazmat.png");
     doorOpen.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
     doorClosed.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorClosed.png");
-    poi0.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi0.png");
 
-    poi1.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi1.png");
-    poi2.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi2.png");
-    poi3.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi3.png");
-    poi4.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi4.png");
-    poi5.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi5.png");
-    poi6.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi6.png");
-    poi7.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi7.png");
-    poi8.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi8.png");
-    poi9.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi9.png");
-    poi10.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi10.png");
+    poi[11].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi0.png");
 
-    poiBlank.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sPOIblank.png");
+    poi[1].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi1.png");
+    poi[2].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi2.png");
+    poi[3].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi3.png");
+    poi[4].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi4.png");
+    poi[5].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi5.png");
+    poi[6].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi6.png");
+    poi[7].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi7.png");
+    poi[8].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi8.png");
+    poi[9].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi9.png");
+    poi[10].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi10.png");
+
+    poi[0].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sPOIblank.png");
 
     ff[0].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffB.png");
     ff[1].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffG.png");
@@ -74,6 +76,8 @@ FireRescue::FireRescue(QWidget *parent)
     std::mt19937 rng(rd());
     std::shuffle(poiList.begin(), poiList.end(), rng);
 
+    for (int i=0; i<6; i++){ffExtra[i] = nullptr; }
+    for (int i=0; i<3; i++){poiExtra[i] = nullptr; }
     ui->setupUi(this);
 }
 
@@ -90,7 +94,6 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
     bool onFire = cell->getFire();
     int slot = players.size();
-    std::cout << gridLocation << "\n";
 
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false)
     {    
@@ -120,8 +123,8 @@ void FireRescue::nextPlayer()
     players[activeFF].second = ffMoves;
     activeFF ++;
     if (activeFF+1 > ffNumber) {activeFF = 0;}
-    redrawFF();
     playerTurn();
+    refreshBoard();
 }
 
 
@@ -425,34 +428,20 @@ void FireRescue::movePlyer(int slot, int location, int direction)
     MapCell* dCell = m_theBoard.GetCell(location+offset);
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && ffMoves>0)
     {
-        //cell->setFireFighter(14);
         players[slot].first+=offset;
-        cell = m_theBoard.GetCell(players[slot].first);
-        cell->setFireFighter(slot);
-        int checkPoi = cell->getPoi();
-        if (checkPoi < 11){cell->setPoiState(true);}
+        cell->removeFireFighter(slot);
+        dCell->setFireFighter(slot);
+        int checkPoi = dCell->getPoi();
+        std::cout << "poi = " << checkPoi << "\n";
+        if (checkPoi < 11){dCell->setPoiState(true);}
         ffMoves --;
-        redrawFF();
+        refreshBoard();
     }  
 }
 
 
-void FireRescue::redrawFF()
+void FireRescue::redrawPoi()
 {
-    for (int i=0; i<80; i++)
-    {
-        MapCell* fCell = m_theBoard.GetCell(i);
-        fCell->setFireFighter(14); 
-        fCell->setPoi(14);   
-    }
-    int ff = activeFF;
-    for (int j=0; j<ffNumber; j++)
-    {
-        ff = ff+1;
-        if (ff+1> ffNumber){ff = 0;}
-        MapCell* fCell = m_theBoard.GetCell(players[ff].first);
-        fCell->setFireFighter(ff);
-    }
     for (int k=0; k<3; k++)
     {
         MapCell* pCell = m_theBoard.GetCell(poiPair[k].second);
@@ -516,25 +505,48 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     MapCell* dCell = m_theBoard.GetCell(location+offset);    
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && poiSlot < 20)
     {
-        cell->setFireFighter(14);
+        cell->removeFireFighter(activeFF);
         int target = poiPair[poiSlot].first;
         cell->setPoi(14);
         players[slot].first += offset;
-        cell = m_theBoard.GetCell(players[slot].first);
-        cell->setFireFighter(slot);
-        cell->setPoi(target);
-        cell->setPoiState(true);
-        poiPair[poiSlot].second = location + offset;
+        dCell = m_theBoard.GetCell(players[slot].first);
         ffMoves -=2;
-        redrawFF();
+        dCell->setFireFighter(slot);
+        dCell->setPoi(target);
+        dCell->setPoiState(true);
+        poiPair[poiSlot].second = location + offset;
+        
+        redrawPoi();
     } 
 }
 
 
 void FireRescue::refreshBoard()
 {
-    bool found;
-    for (int i=0; i<80; i++)
+    for (int i = 0; i < 6; ++i) 
+    {
+        if (ffExtra[i] != nullptr) 
+        {
+            std::cout << "Deleted ff " << ffExtra[i] << "\n";
+            ffExtra[i]->hide();
+            delete ffExtra[i];
+            ffExtra[i] = nullptr; // Optional: Set the pointer to nullptr after deleting
+        }
+    }  
+
+    for (int i = 0; i < 3; ++i) 
+    {
+        if (poiExtra[i] != nullptr) 
+        {
+            poiExtra[i]->hide();
+            std::cout << "Deleted poi " << poiExtra[i] << "\n";
+            delete poiExtra[i];
+            poiExtra[i] = nullptr; // Optional: Set the pointer to nullptr after deleting
+        }
+    } 
+
+        bool found;
+        for (int i=0; i<80; i++)
     {
         MapCell* cell = m_theBoard.GetCell(i); 
         bool iSmoke = cell->getSmoke();
@@ -543,65 +555,70 @@ void FireRescue::refreshBoard()
         bool iHazmat = cell->getHazmat();
         int  iPoi = cell->getPoi();
         bool poiState = cell->getPoiState();
-        int  iFireFighter = cell->getFireFighter();
+        if (iPoi < 20) {std::cout << "PoiState = " << poiState << "\n";}
+        ui->leftLowerDisk[i]->setPixmap(QPixmap());
+        std::vector<int> iFireFighter = cell->getFireFighter();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iSmoke==false && iFire==false){ui->leftUpperDisk[i]->setPixmap(QPixmap());}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
         if (iHazmat == true){ui->rightUpperDisk[i]->setPixmap(hazmat);}
-        if (iFireFighter < 6)
+        
+        if (iFireFighter.empty() == false)
         {
-            ui->leftLowerDisk[i]->setPixmap(ff[iFireFighter]);
+            int slot = 0;
+            for (size_t k = 0; k < iFireFighter.size(); ++k) 
+            {
+                if (iFireFighter[k]== activeFF){ui->leftLowerDisk[i]->setPixmap(ff[iFireFighter[k]]);}
+                else 
+                {
+                    int row = i / 10;
+                    int col = i % 10;
+                    ffExtra[slot] = new QLabel("ffExtra", this);
+                    ffExtra[slot]->setGeometry(QRect(332+(col*127)+((slot+1)*7), 65+(row*125), 60, 60));
+                    ffExtra[slot]->setPixmap(ff[iFireFighter[k]]);
+                    labels.push_back(ffExtra[k]);
+                    ffExtra[slot]->show();
+                    slot++;
+                }
+            }
         }
         else
         {
             ui->leftLowerDisk[i]->setPixmap(QPixmap());
         }
 
+        int poiStack = 0;
         if (iPoi < 14)
         {
             if (poiState == true)
             {
-                switch (iPoi)
+                for (int j=0; j<3; j++)
                 {
-                case 0:
-                    ui->rightLowerDisk[i]->setPixmap(poiBlank);
-                    break;
-                case 1:
-                    ui->rightLowerDisk[i]->setPixmap(poi1);
-                    break;
-                case 2:
-                    ui->rightLowerDisk[i]->setPixmap(poi2);
-                    break;
-                case 3:
-                    ui->rightLowerDisk[i]->setPixmap(poi3);
-                    break;
-                case 4:
-                    ui->rightLowerDisk[i]->setPixmap(poi4);
-                    break;
-                case 5:
-                    ui->rightLowerDisk[i]->setPixmap(poi5);
-                    break;                        
-                case 6:
-                    ui->rightLowerDisk[i]->setPixmap(poi6);
-                    break;
-                case 7:
-                    ui->rightLowerDisk[i]->setPixmap(poi7);
-                    break;        
-                case 8:
-                    ui->rightLowerDisk[i]->setPixmap(poi8);
-                    break;
-                case 9:
-                    ui->rightLowerDisk[i]->setPixmap(poi9);
-                    break;
-                case 10:
-                    ui->rightLowerDisk[i]->setPixmap(poi10);
-                    break;  
-                } 
+                    if (i == poiPair[j].second){poiStack ++;}
+                }
+                if (poiStack > 1)
+                {
+                    
+                    int row = i / 10;
+                    int col = i % 10;
+                    for (int k=0; k<poiStack-1; k++)
+                    {
+                        poiExtra[k] = new QLabel("poiExtra", this);
+                        poiExtra[k]->setGeometry(QRect(392+(col*127)+(7*(k+1)), 65+(row*125), 60, 60));
+                        poiExtra[k]->setPixmap(poi[0]);
+                        labels.push_back(poiExtra[k]);
+                        poiExtra[k]->show();
+                    }
+                }
+                std::cout << "showPoi: " << iPoi << "\n";
+                ui->rightLowerDisk[i]->setPixmap(poi[iPoi]);
+                ui->rightLowerDisk[i]->raise();
             }
-            else{ui->rightLowerDisk[i]->setPixmap(poi0);}
+            else
+            {ui->rightLowerDisk[i]->setPixmap(poi[11]);}
         }
-        if (iPoi>10) {ui->rightLowerDisk[i]->setPixmap(QPixmap());}
+        else {ui->rightLowerDisk[i]->setPixmap(QPixmap());}
     }
     int doorNum;
     for (int i=0; i<178; i++)

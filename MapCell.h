@@ -2,6 +2,8 @@
 #define MAPCELL_H
 
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 
 class MapCell
@@ -22,7 +24,7 @@ public:
     bool getChecked();
     bool getPoiState();
     int  getPoi();
-    int  getFireFighter();
+    std::vector<int> getFireFighter();
     int  getID();
 
 
@@ -34,7 +36,10 @@ public:
     void setPoi(int poi);
     void setPoiState(bool state);
     void setFireFighter(int fireFighter);
+    void removeFireFighter(int fireFighter);
     void printBoard();
+
+    
 
 
 private:
@@ -50,18 +55,13 @@ private:
 
     bool poiState;
     bool hotSpot;
-    int  fireFighter;
+    
     int  wallArray[4];
     int  door;
     int  doorState;
     int  m_index;
     
-
+    std::vector <int> fireFighter;
     std::unordered_map<int, int> cellToDoorMap;
-
-
-
-    // door values 4 = closed, 3 = open, 0 = destroyed
-
 };
 #endif // MAPCELL_H
