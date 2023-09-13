@@ -96,14 +96,14 @@ FireRescue::~FireRescue()
 
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
-    std::cout << "setUpGame = " << setUpGameOn << "\n";
+    //std::cout << "setUpGame = " << setUpGameOn << "\n";
     gridLocation = (row*10) + col;
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
     bool onFire = cell->getFire();
 
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
-        std::cout << placePlayer  << " " << gridLocation << "\n";
+        //std::cout << placePlayer  << " " << gridLocation << "\n";
         MapCell* cell = m_theBoard.GetCell(gridLocation);
         cell->setFireFighter(placePlayer);
         ffMoves = 0;
@@ -175,7 +175,7 @@ void FireRescue::setUpGame()
             {
                 onFire = checkNewSpot(1);
                 location = ((value6)*10)+(value8);
-                std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
+                //std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             }
             explosion(location);
             delayTimer(50);
@@ -189,7 +189,7 @@ void FireRescue::setUpGame()
             {
                 onFire = checkNewSpot(2);
                 location = ((value6)*10)+(value8);
-                std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
+                //std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             }
             explosion(location);
             delayTimer(50);
@@ -205,7 +205,7 @@ void FireRescue::setUpGame()
                 location = ((value6)*10)+(value8);
                 MapCell* cell = m_theBoard.GetCell(location); 
                 hazmatHere = cell->getHazmat();
-                std::cout  << value6 << "," << value8 << "fire: " << onFire << " Haz: " << hazmatHere << "\n";
+                //std::cout  << value6 << "," << value8 << "fire: " << onFire << " Haz: " << hazmatHere << "\n";
             }
             placeHazmat(location);
             delayTimer(50);
@@ -221,7 +221,7 @@ void FireRescue::setUpGame()
                 location = ((value6)*10)+(value8);
                 MapCell* cell = m_theBoard.GetCell(location); 
                 poiHere = cell->getPoi();
-                std::cout  << value6 << "," << value8 << "fire: " << onFire << " Poi: " << poiHere << "\n";
+                //std::cout  << value6 << "," << value8 << "fire: " << onFire << " Poi: " << poiHere << "\n";
             }
             placePOI(location);
             delayTimer(500);
@@ -237,7 +237,7 @@ void FireRescue::setUpGame()
                 location = ((value6)*10)+(value8);
                 MapCell* cell = m_theBoard.GetCell(location); 
                 hotSpotHere= cell->getHotSpot();
-                std::cout << value6 << "," << value8 << " HotSpot: " << hotSpotHere << "\n";
+                //std::cout << value6 << "," << value8 << " HotSpot: " << hotSpotHere << "\n";
             }
             placeHotSpot(location);
             delayTimer(50);
@@ -264,16 +264,11 @@ void FireRescue::ffDialog()
 
     // Show the dialog modally
     int result = ffDialog->exec();
-
-    // Handle the dialog result
-    if (result == QDialog::Accepted) {}
-    else 
+    std::cout << "Result is " << result << "\n";
+    if (ffDialog->selectedButtonIndex != -1) 
     {
-        if (ffDialog->selectedButtonIndex != -1) 
-        {
-        ffNumber = ffDialog->selectedButtonIndex + 1;
-        std::cout << "SELECTED = " << ffNumber << "\n";
-        }
+    ffNumber = ffDialog->selectedButtonIndex + 1;
+    std::cout << "SELECTED = " << ffNumber << "\n";
     }
 }
 
@@ -330,6 +325,7 @@ void FireRescue::on_utility_clicked()
                 ui->information->setText("Do you really want to end your turn??");
                 doubleCheck = !doubleCheck;
             }
+            if (ffMoves < 5){doubleCheck = false;}
             if (doubleCheck == false) {nextPlayer();}
         }
     }
@@ -455,7 +451,7 @@ void FireRescue::movePlayer(int location, int direction)
         dCell->setFireFighter(activeFF);
 
         int checkPoi = dCell->getPoi();
-        std::cout << "poi = " << checkPoi << "\n";
+        //std::cout << "poi = " << checkPoi << "\n";
         if (checkPoi < 11){dCell->setPoiState(true);}
         ffMoves --;
         refreshBoard();
@@ -550,7 +546,7 @@ void FireRescue::refreshBoard()
         if (poiExtra[i] != nullptr) 
         {
             poiExtra[i]->hide();
-            std::cout << "Deleted poi " << poiExtra[i] << "\n";
+            //std::cout << "Deleted poi " << poiExtra[i] << "\n";
             delete poiExtra[i];
             poiExtra[i] = nullptr; // Optional: Set the pointer to nullptr after deleting
         }
@@ -604,11 +600,11 @@ void FireRescue::refreshBoard()
             }
         }
     }
-    for (QLabel* label : labels)  
+    /*for (QLabel* label : labels)  
     {
         std::cout << label << " ";
     }
-    std::cout << "\n";
+    std::cout << "\n";*/
 
     bool found;
     for (int i=0; i<80; i++)
@@ -648,7 +644,7 @@ void FireRescue::refreshBoard()
                         poiExtra[k]->show();
                     }
                 }
-                std::cout << "showPoi: " << iPoi << "\n";
+                //std::cout << "showPoi: " << iPoi << "\n";
                 ui->rightLowerDisk[i]->setPixmap(poi[iPoi]);
                 ui->rightLowerDisk[i]->raise();
             }

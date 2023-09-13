@@ -25,13 +25,6 @@ public:
     void refreshBoard();
     void cycleDoor(int location, int direction);
     void checkBreach(int location);
-    std::vector<MapCell*> adjacentCells(int location);
-    std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
-    std::vector<std::pair<int, int>> poiPair;                   // pair of POI number and POI location 
-    int  baseValue(int position);
-    int  getOthersideOfWall(int direction, int location);
-    int  value8;
-    int  value6;
     void shockWave(int direction, int location);
     void damageWall(int direction, int location, int base); 
     void placeHotSpot(int location);
@@ -51,26 +44,7 @@ public:
     void printFire(int location);
     void universalAction(int direction);
     void redrawPoi();
-    
     void ffDialog();
-    
-    int  doorArray[8] = {35,58,71,76,101,109,142,144};  
-    int  baseOffset[4]= {0,10,11,21};
-    int  wallDamage = 0;
-    int* m_MapArray;
-    int* m_WallArray;
-
-    int  action;                // 0 = move, 1 = spray, 2 = chop, 3 = carry, 4 = open, 5 = close
-    int  ffNumber;              // number of FF for this game
-    int  placePlayer = 0;
-    int  activeFF = 0;          // current FF
-    int  ffMoves;               // number of actions a FF has
-    std::vector<std::pair <int, int>> players;   // vector of the loactions of each FF and number of actions
-
-    bool ffBlock = true;        // blocker to keep rb's inactive while setting the number of ff
-    bool setUpGameOn;
-    QLabel *damageSquare[40];
-    
 
 private:
     Ui::FireRescue *ui;
@@ -82,30 +56,48 @@ private:
     QPixmap doorOpen;
     QPixmap doorClosed;
     QPixmap poi[12];
-
     QPixmap poiBlank;
-
     QPixmap ff[6];
-
     QPixmap greySquare;
     QPixmap blackSquare;
-
     QPixmap D6[7];
     QPixmap D8[9];
 
+    QLabel *damageSquare[40];
+    QLabel *ffExtra[6];
+    QLabel *poiExtra[3];
+
+    std::vector<std::pair <int, int>> players;   // vector of the loactions of each FF and number of actions
+    std::vector<MapCell*> adjacentCells(int location);
+    std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
+    std::vector<std::pair<int, int>> poiPair;                   // pair of POI number and POI location 
+
+    bool ffBlock = true;        // blocker to keep rb's inactive while setting the number of ff
+    bool setUpGameOn;
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;
+
+    int* m_MapArray;
+    int* m_WallArray;
+    int  doorArray[8] = {35,58,71,76,101,109,142,144};  
+    int  baseOffset[4]= {0,10,11,21};
+    int  wallDamage = 0;
+    int  action;                // 0 = move, 1 = spray, 2 = chop, 3 = carry, 4 = open, 5 = close
+    int  ffNumber;              // number of FF for this game
+    int  placePlayer = 0;
+    int  activeFF = 0;          // current FF
+    int  ffMoves;               // number of actions a FF has   
     int  hotSpots = 12;
     int  gridLocation;
     int  gameState = 0;
-
+    int  baseValue(int position);
+    int  getOthersideOfWall(int direction, int location);
+    int  value8;
+    int  value6;
+    
     QList<QLabel *> labels;
     Board m_theBoard;
-
-    QLabel *ffExtra[6];
-    QLabel *poiExtra[3];
-    
 
 private slots:
     void on_tableWidget_cellClicked(int row, int column);
