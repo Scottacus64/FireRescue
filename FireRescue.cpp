@@ -315,6 +315,7 @@ void FireRescue::rollDice(int slot)
 
 void FireRescue::on_utility_clicked()
 {
+    static bool doubleCheck;
     if (gameState == 0)
     {
         ffDialog();
@@ -322,7 +323,15 @@ void FireRescue::on_utility_clicked()
     }
     else if (gameState == 1)
     {
-        if (ffBlock == false) {nextPlayer();}
+        if (ffBlock == false) 
+        {
+            if (ffMoves > 4)
+            {
+                ui->information->setText("Do you really want to end your turn??");
+                doubleCheck = !doubleCheck;
+            }
+            if (doubleCheck == false) {nextPlayer();}
+        }
     }
 }
 
