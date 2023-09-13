@@ -76,8 +76,14 @@ FireRescue::FireRescue(QWidget *parent)
     std::mt19937 rng(rd());
     std::shuffle(poiList.begin(), poiList.end(), rng);
 
-    for (int i=0; i<6; i++){ffExtra[i] = nullptr; }
+   // for (int i=0; i<6; i++){ffExtra[i] = nullptr; }
     for (int i=0; i<3; i++){poiExtra[i] = nullptr; }
+    setUpGameOn = true;
+
+    for (int i=0; i<6; i++)
+    {
+        players.push_back(std::make_pair(100, 0));
+    }
     ui->setupUi(this);
 }
 
@@ -90,29 +96,31 @@ FireRescue::~FireRescue()
 
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
+    std::cout << "setUpGame = " << setUpGameOn << "\n";
     gridLocation = (row*10) + col;
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
     bool onFire = cell->getFire();
-    int slot = players.size();
 
-    if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false)
+    if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
-        std::cout << slot  << " " << gridLocation << "\n";
+        std::cout << placePlayer  << " " << gridLocation << "\n";
         MapCell* cell = m_theBoard.GetCell(gridLocation);
-        cell->setFireFighter(slot);
+        cell->setFireFighter(placePlayer);
         ffMoves = 0;
-        std::pair <int,int> ffPair(gridLocation, ffMoves);
-        players.push_back(ffPair);
-        if (slot+1 < ffNumber) 
+        std::pair<int, int> newPair = {gridLocation, ffMoves};
+        players[placePlayer] = newPair;
+        if (placePlayer+1 < ffNumber) 
         {
+            placePlayer ++;
             placeFF();
         }
         else 
         {
             ffBlock = false;
-            activeFF = 0;
-            playerTurn();
+            activeFF = ffNumber;
+            nextPlayer();
         }
+        
     }
     refreshBoard();
 }
@@ -123,13 +131,16 @@ void FireRescue::nextPlayer()
     players[activeFF].second = ffMoves;
     activeFF ++;
     if (activeFF+1 > ffNumber) {activeFF = 0;}
-    playerTurn();
-    refreshBoard();
+    ffMoves = players[activeFF].second + 5;
+    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
+    ui->ffUpIcon->setPixmap(ff[activeFF]);
+    ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
 }
 
 
 void FireRescue::setUpGame()
 {
+    setUpGameOn = true;
     int row = 0;
     int col = 0;
     rollDice(0);
@@ -152,7 +163,7 @@ void FireRescue::setUpGame()
             }
             location = (row*8) + col;
             explosion(location);
-            delayTimer(500);
+            delayTimer(50);
         }
         if (startUpSequence == 1)                               // explosion 2
         {
@@ -165,7 +176,7 @@ void FireRescue::setUpGame()
                 std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             }
             explosion(location);
-            delayTimer(500);
+            delayTimer(50);
         }
         if (startUpSequence == 2)                               // explostion 3
         {
@@ -179,7 +190,7 @@ void FireRescue::setUpGame()
                 std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             }
             explosion(location);
-            delayTimer(500);
+            delayTimer(50);
         }
         if (startUpSequence >2 && startUpSequence <7)           // place Hazmats
         {
@@ -195,7 +206,7 @@ void FireRescue::setUpGame()
                 std::cout  << value6 << "," << value8 << "fire: " << onFire << " Haz: " << hazmatHere << "\n";
             }
             placeHazmat(location);
-            delayTimer(500);
+            delayTimer(50);
         }
         if (startUpSequence >6 && startUpSequence <10)          // place POI
         {
@@ -227,30 +238,21 @@ void FireRescue::setUpGame()
                 std::cout << value6 << "," << value8 << " HotSpot: " << hotSpotHere << "\n";
             }
             placeHotSpot(location);
-            delayTimer(500);
+            delayTimer(50);
         }        
     }
     ui->label->setVisible(false);
     refreshBoard();
+    setUpGameOn = false;
     placeFF();
 }
 
 
 void FireRescue::placeFF()
-{
-    int slot = players.size();
-    ui->ffUp->setText("Fire Fighter "+ QString::number(slot));
-    ui->ffUpIcon->setPixmap(ff[slot]);
+{  
+    ui->ffUp->setText("Fire Fighter "+ QString::number(placePlayer));
+    ui->ffUpIcon->setPixmap(ff[placePlayer]);
     ui->information->setText("Please click on a street square to place the Fire Fighter");
-}
-
-
-void FireRescue::playerTurn()
-{
-    ffMoves = players[activeFF].second + 5;
-    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
-    ui->ffUpIcon->setPixmap(ff[activeFF]);
-    ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
 }
 
 
@@ -297,14 +299,12 @@ void FireRescue::rollDice(int slot)
 {
     for (int j=0; j<10; j++)
     {
-        delayTimer(25);
+        delayTimer(5);
         if (slot != 2){value8 = die.rollDie(8);}
         value6 = die.rollDie(6);
         ui->D6->setPixmap(D6[value6]);
         ui->D8->setPixmap(D8[value8]);
     }
-
-    
 }
 
 
@@ -374,6 +374,7 @@ void FireRescue::on_arrowR_clicked()
     if (ffBlock == false) {universalAction(2);}
 }
 
+
 void FireRescue::universalAction(int direction)
 {
     int offest, limit;
@@ -386,7 +387,7 @@ void FireRescue::universalAction(int direction)
     {
         if (action==0)
         {
-            movePlyer(activeFF, players[activeFF].first, direction);
+            movePlayer(players[activeFF].first, direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==1)
@@ -413,9 +414,7 @@ void FireRescue::universalAction(int direction)
 }    
 
 
-
-
-void FireRescue::movePlyer(int slot, int location, int direction)
+void FireRescue::movePlayer(int location, int direction)   
 {
     MapCell* cell = m_theBoard.GetCell(location);
     int base = baseValue(location);
@@ -428,9 +427,10 @@ void FireRescue::movePlyer(int slot, int location, int direction)
     MapCell* dCell = m_theBoard.GetCell(location+offset);
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && ffMoves>0)
     {
-        players[slot].first+=offset;
-        cell->removeFireFighter(slot);
-        dCell->setFireFighter(slot);
+        players[activeFF].first+=offset;
+        cell->removeFireFighter(activeFF);
+        dCell->setFireFighter(activeFF);
+
         int checkPoi = dCell->getPoi();
         std::cout << "poi = " << checkPoi << "\n";
         if (checkPoi < 11){dCell->setPoiState(true);}
@@ -514,8 +514,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
         dCell->setFireFighter(slot);
         dCell->setPoi(target);
         dCell->setPoiState(true);
-        poiPair[poiSlot].second = location + offset;
-        
+        poiPair[poiSlot].second = location + offset;       
         redrawPoi();
     } 
 }
@@ -523,17 +522,6 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
 
 void FireRescue::refreshBoard()
 {
-    for (int i = 0; i < 6; ++i) 
-    {
-        if (ffExtra[i] != nullptr) 
-        {
-            std::cout << "Deleted ff " << ffExtra[i] << "\n";
-            ffExtra[i]->hide();
-            delete ffExtra[i];
-            ffExtra[i] = nullptr; // Optional: Set the pointer to nullptr after deleting
-        }
-    }  
-
     for (int i = 0; i < 3; ++i) 
     {
         if (poiExtra[i] != nullptr) 
@@ -545,8 +533,62 @@ void FireRescue::refreshBoard()
         }
     } 
 
-        bool found;
-        for (int i=0; i<80; i++)
+    for (QLabel* label : labels)  
+    {
+        if (label != nullptr) 
+        {
+            label->hide();
+            delete label;
+        }
+    }
+    labels.clear();
+
+    int slot = 0;
+    int extra = 0;
+    for (int i=0; i<ffNumber; i++) 
+    {
+        bool match = false;
+        if (players[i].first < 80)
+        {
+            for (int j=0; j<i; j++)
+            {  
+                if (players[i].first == players[j].first)     // if the locations are the same
+                {
+                    int row = players[i].first / 10;
+                    int col = players[i].first % 10;
+                    ffExtra[slot] = new QLabel( this);
+                    ffExtra[slot]->setGeometry(QRect(332+(col*127)+((extra+1)*7), 65+(row*125), 60, 60));
+                    ffExtra[slot]->setPixmap(ff[i]);
+                    ffExtra[slot]->show();
+                    labels.push_back(ffExtra[slot]);
+                    match = true;
+                    slot++;
+                    extra++;
+                    j=i;
+                } 
+            } 
+            if (match == false)
+            {
+                int row = players[i].first / 10;
+                int col = players[i].first % 10;
+                ffExtra[slot] = new QLabel(this);
+                ffExtra[slot]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));
+                ffExtra[slot]->setPixmap(ff[i]);
+                ffExtra[slot]->show();
+                labels.push_back(ffExtra[slot]);  
+                match = false;
+                slot++;
+            }
+        }
+    }
+    for (QLabel* label : labels)  
+    {
+        std::cout << label << " ";
+    }
+    std::cout << "\n";
+
+    bool found;
+    for (int i=0; i<80; i++)
     {
         MapCell* cell = m_theBoard.GetCell(i); 
         bool iSmoke = cell->getSmoke();
@@ -555,38 +597,11 @@ void FireRescue::refreshBoard()
         bool iHazmat = cell->getHazmat();
         int  iPoi = cell->getPoi();
         bool poiState = cell->getPoiState();
-        if (iPoi < 20) {std::cout << "PoiState = " << poiState << "\n";}
-        ui->leftLowerDisk[i]->setPixmap(QPixmap());
-        std::vector<int> iFireFighter = cell->getFireFighter();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iSmoke==false && iFire==false){ui->leftUpperDisk[i]->setPixmap(QPixmap());}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
         if (iHazmat == true){ui->rightUpperDisk[i]->setPixmap(hazmat);}
-        
-        if (iFireFighter.empty() == false)
-        {
-            int slot = 0;
-            for (size_t k = 0; k < iFireFighter.size(); ++k) 
-            {
-                if (iFireFighter[k]== activeFF){ui->leftLowerDisk[i]->setPixmap(ff[iFireFighter[k]]);}
-                else 
-                {
-                    int row = i / 10;
-                    int col = i % 10;
-                    ffExtra[slot] = new QLabel("ffExtra", this);
-                    ffExtra[slot]->setGeometry(QRect(332+(col*127)+((slot+1)*7), 65+(row*125), 60, 60));
-                    ffExtra[slot]->setPixmap(ff[iFireFighter[k]]);
-                    labels.push_back(ffExtra[k]);
-                    ffExtra[slot]->show();
-                    slot++;
-                }
-            }
-        }
-        else
-        {
-            ui->leftLowerDisk[i]->setPixmap(QPixmap());
-        }
 
         int poiStack = 0;
         if (iPoi < 14)
@@ -607,7 +622,6 @@ void FireRescue::refreshBoard()
                         poiExtra[k] = new QLabel("poiExtra", this);
                         poiExtra[k]->setGeometry(QRect(392+(col*127)+(7*(k+1)), 65+(row*125), 60, 60));
                         poiExtra[k]->setPixmap(poi[0]);
-                        labels.push_back(poiExtra[k]);
                         poiExtra[k]->show();
                     }
                 }
@@ -649,6 +663,7 @@ void FireRescue::refreshBoard()
             if (m_MapArray[i]== 0){ui->cube[m_WallArray[i]-1]->setPixmap(blackSquare);}
         }
     }
+    ui->tableWidget->raise();
 }
 
 
@@ -698,7 +713,6 @@ void FireRescue::placeFire(int location)
             {
                 int base = baseValue(location);
                 int barrier = m_MapArray[base + baseOffset[i]];
-                //int barrier = cell->getWall(i);       // get the current cell's wall/door value in this direction
                 if (barrier == 3) {barrier = 0;}                    // if there is a door and it is open then set barrier to 0
                 if (nearCells[i]->getSmoke() == true && barrier == 0)
                 {
@@ -793,9 +807,9 @@ void FireRescue::explosion(int location)
 { 
     MapCell* cell = m_theBoard.GetCell(location);
     placeFire(location);
-    delayTimer(500);
+    delayTimer(50);
     placeHotSpot(location);
-    delayTimer(500);
+    delayTimer(50);
     std::vector<MapCell*> nearCells = adjacentCells(location); 
     for (int i=0; i<4; i++)
     {
@@ -829,7 +843,6 @@ void FireRescue::explosion(int location)
             }
     }
 }
-
 
 
 void FireRescue::shockWave(int direction, int location)
@@ -877,14 +890,11 @@ void FireRescue::damageWall(int direction, int location, int base)
 
 std::vector<MapCell*> FireRescue::adjacentCells(int location)
 {
-   // MapCell* cell = m_theBoard.GetCell(location);
     std::vector<MapCell*> nextCells(4, nullptr);
     nextCells[0] = (location-10 < 80 && location-10 > -1) ? m_theBoard.GetCell(location-10) : nullptr;      // if the cell above is not on map
     nextCells[1] = (location%10 != 0) ? m_theBoard.GetCell(location-1) : nullptr;                         // cell to the left not on map
     nextCells[2] = ((location+1)%10 != 0 || location == 0) ? m_theBoard.GetCell(location+1) : nullptr;    // cell right not on map
     nextCells[3] = (location+10 < 80 && location+10 > -1) ? m_theBoard.GetCell(location+10) : nullptr;      // cell below not on map
-    //for (int i=0; i<4; i++){std::cout << nextCells[i] << " ";}
-    //std::cout << "\n";
     return nextCells;
 }
 
@@ -893,18 +903,12 @@ void FireRescue::printSmoke(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
     bool smoke = cell->getSmoke();
-    //if (location%10 == 0 && location >0) {std::cout << "\n";}
-    //std::cout << smoke;
-    
 }
 
 void FireRescue::printFire(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
     bool fire = cell->getFire();
-    //if (location%10 == 0 && location >0) {std::cout << "\n";}
-    //std::cout << fire;
-    
 }
 
 int FireRescue::baseValue(int location)

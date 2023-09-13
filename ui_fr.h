@@ -30,7 +30,7 @@ public:
     QLabel *label;
     QLabel *centerDisk[80];
     QLabel *leftUpperDisk[80];
-    QLabel *leftLowerDisk[80];
+    //QLabel *leftLowerDisk[80];
     QLabel *rightUpperDisk[80];
     QLabel *rightLowerDisk[80];
     QLabel *door[9];
@@ -107,10 +107,10 @@ public:
                 leftUpperDisk[x]->setPixmap(QPixmap());
                 leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));
 
-                leftLowerDisk[x] = new QLabel(FireRescue); 
+                /*leftLowerDisk[x] = new QLabel(FireRescue); 
                 leftLowerDisk[x]->setObjectName("leftLowerDisk"+QString::number(x));
                 leftLowerDisk[x]->setPixmap(QPixmap());
-                leftLowerDisk[x]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));
+                leftLowerDisk[x]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));*/
 
                 rightLowerDisk[x] = new QLabel(FireRescue); 
                 rightLowerDisk[x]->setObjectName("rightLowerDisk"+QString::number(x));

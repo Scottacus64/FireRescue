@@ -40,12 +40,11 @@ public:
     void placeHazmat(int location);
     void placePOI(int location);
     void delayTimer(int delay);
-    void movePlyer(int slot, int location, int direction);
+    void movePlayer(int location, int direction);
     void spray(int location, int direction);
     void chop(int location, int direction);
     void carry(int slot, int location, int obj, int direction);
     void placeFF();
-    void playerTurn();
     void nextPlayer();
     void fireTurn();
     void printSmoke(int location);
@@ -63,11 +62,13 @@ public:
 
     int  action;                // 0 = move, 1 = spray, 2 = chop, 3 = carry, 4 = open, 5 = close
     int  ffNumber;              // number of FF for this game
+    int  placePlayer = 0;
     int  activeFF = 0;          // current FF
     int  ffMoves;               // number of actions a FF has
     std::vector<std::pair <int, int>> players;   // vector of the loactions of each FF and number of actions
 
     bool ffBlock = true;        // blocker to keep rb's inactive while setting the number of ff
+    bool setUpGameOn;
     QLabel *damageSquare[40];
     
 
