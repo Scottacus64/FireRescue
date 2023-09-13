@@ -117,6 +117,8 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
         else 
         {
             ffBlock = false;
+            gameState = 1;
+            ui->utility->setText("End Turn");
             activeFF = ffNumber;
             nextPlayer();
         }
@@ -275,6 +277,7 @@ void FireRescue::ffDialog()
     }
 }
 
+
 void FireRescue::delayTimer(int delay)
 {
     QTimer timer;
@@ -286,6 +289,7 @@ void FireRescue::delayTimer(int delay)
     loop.exec();
 }
 
+
 bool FireRescue::checkNewSpot(int slot)
 {
     rollDice(slot);
@@ -294,6 +298,7 @@ bool FireRescue::checkNewSpot(int slot)
     bool onFire = cell->getFire();
     return onFire;
 }
+
 
 void FireRescue::rollDice(int slot)
 {
@@ -308,16 +313,25 @@ void FireRescue::rollDice(int slot)
 }
 
 
-void FireRescue::on_startGame_clicked()
+void FireRescue::on_utility_clicked()
 {
-    ffDialog();
-    setUpGame();
+    if (gameState == 0)
+    {
+        ffDialog();
+        setUpGame();
+    }
+    else if (gameState == 1)
+    {
+        if (ffBlock == false) {nextPlayer();}
+    }
 }
+
 
 void FireRescue::on_rbMove_clicked()
 {
     if (ffBlock == false) {action = 0;}
 }
+
 
 void FireRescue::on_rbSpray_clicked()
 {
@@ -325,29 +339,28 @@ void FireRescue::on_rbSpray_clicked()
     if (ffBlock == false) {action = 1;}
 }
 
+
 void FireRescue::on_rbChop_clicked()
 {
     if (ffBlock == false) {action = 2;}
 }
+
 
 void FireRescue::on_rbCarry_clicked()
 {
     if (ffBlock == false) {action = 3;}
 }
 
+
 void FireRescue::on_rbOpen_clicked()
 {
     if (ffBlock == false) {action = 4;}
 }
 
+
 void FireRescue::on_rbClose_clicked()
 {
    if (ffBlock == false) {action = 5;}
-}
-
-void FireRescue::on_rbEndTurn_clicked()
-{
-    if (ffBlock == false) {nextPlayer();}
 }
 
 
@@ -411,6 +424,7 @@ void FireRescue::universalAction(int direction)
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
     }
+    if (ffMoves == 0){nextPlayer();}
 }    
 
 

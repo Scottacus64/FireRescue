@@ -48,14 +48,16 @@ public:
     QPushButton *arrowU;
     QPushButton *arrowD;
     QPushButton *arrowR;
-    QPushButton *startGame;
+
+    QPushButton *utility;
+
     QRadioButton *rbMove;
     QRadioButton *rbSpray;
     QRadioButton *rbChop;
     QRadioButton *rbCarry;
     QRadioButton *rbOpen;
     QRadioButton *rbClose;
-    QRadioButton *rbEndTurn;
+
     QDialog *ffDialog;
     
 
@@ -107,10 +109,6 @@ public:
                 leftUpperDisk[x]->setPixmap(QPixmap());
                 leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));
 
-                /*leftLowerDisk[x] = new QLabel(FireRescue); 
-                leftLowerDisk[x]->setObjectName("leftLowerDisk"+QString::number(x));
-                leftLowerDisk[x]->setPixmap(QPixmap());
-                leftLowerDisk[x]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));*/
 
                 rightLowerDisk[x] = new QLabel(FireRescue); 
                 rightLowerDisk[x]->setObjectName("rightLowerDisk"+QString::number(x));
@@ -259,11 +257,11 @@ public:
         D8->setGeometry(QRect(110, 30, 60, 60));
 
        
-        startGame = new QPushButton(FireRescue);
-        startGame->setObjectName("startGame");
-        startGame->setGeometry(QRect(50, 125, 100, 50));
-        startGame->setText("Start Game");
-        startGame->setCheckable(false);
+        utility = new QPushButton(FireRescue);
+        utility->setObjectName("utility");
+        utility->setGeometry(QRect(50, 775, 100, 50));
+        utility->setText("Start Game");
+        utility->setCheckable(false);
 
         /************** set up the game value displays ********************/
         damage = new QLabel(FireRescue);
@@ -272,17 +270,17 @@ public:
         ffUp = new QLabel(FireRescue);
         ffUpIcon = new QLabel(FireRescue);
         information = new QLabel(FireRescue);
-        damage->setGeometry(QRect(30,200, 150, 40));
+        damage->setGeometry(QRect(30,150, 150, 40));
         damage->setText("Damage = 0");
-        personsSaved->setGeometry(QRect(30,240,150,40));
+        personsSaved->setGeometry(QRect(30,190,150,40));
         personsSaved->setText("Persons Saved = 0");
-        personsLost->setGeometry(QRect(30,280,150,40));
+        personsLost->setGeometry(QRect(30,230,150,40));
         personsLost->setText("Persons Lost = 0");
-        ffUp->setGeometry(QRect(30,320,150,40));
+        ffUp->setGeometry(QRect(30,260,150,40));
 
-        ffUpIcon->setGeometry(QRect(50,360,50,50));
+        ffUpIcon->setGeometry(QRect(50,310,50,50));
 
-        information->setGeometry(QRect(10,420,180,150));
+        information->setGeometry(QRect(10,370,180,150));
         information->setStyleSheet("border: 2px solid black;");
         information->setWordWrap(true);
 
@@ -327,7 +325,7 @@ public:
         rbCarry = new QRadioButton(FireRescue);
         rbOpen = new QRadioButton(FireRescue);
         rbClose = new QRadioButton(FireRescue);
-        rbEndTurn = new QRadioButton(FireRescue);
+
 
         rbMove->setText("Move");
         rbSpray->setText("Spray");
@@ -335,15 +333,15 @@ public:
         rbCarry->setText("Carry");
         rbOpen->setText("Open");
         rbClose->setText("Close");
-        rbEndTurn->setText("End Turn");
 
-        rbMove->setGeometry(50, 560, 150, 40);
-        rbSpray->setGeometry(50, 600, 150, 40);
-        rbChop->setGeometry(50, 640, 150, 40);
-        rbCarry->setGeometry(50, 680, 150, 40);
-        rbOpen->setGeometry(50, 720, 150, 40);
-        rbClose->setGeometry(50, 760, 150, 40);
-        rbEndTurn->setGeometry(50, 800, 150, 40);
+
+        rbMove->setGeometry(50, 520, 150, 40);
+        rbSpray->setGeometry(50, 560, 150, 40);
+        rbChop->setGeometry(50, 600, 150, 40);
+        rbCarry->setGeometry(50, 640, 150, 40);
+        rbOpen->setGeometry(50, 680, 150, 40);
+        rbClose->setGeometry(50, 720, 150, 40);
+
 
         rbMove->setObjectName("rbMove");
         rbSpray->setObjectName("rbSpray");
@@ -351,7 +349,7 @@ public:
         rbCarry->setObjectName("rbCarry");
         rbOpen->setObjectName("rbOpen");
         rbClose->setObjectName("rbClose");
-        rbEndTurn->setObjectName("rbEndTurn");
+ 
         
 
         retranslateUi(FireRescue);

@@ -98,6 +98,7 @@ private:
     bool smokeOn = false;
     int  hotSpots = 12;
     int  gridLocation;
+    int  gameState = 0;
 
     QList<QLabel *> labels;
     Board m_theBoard;
@@ -108,20 +109,16 @@ private:
 
 private slots:
     void on_tableWidget_cellClicked(int row, int column);
-    void on_startGame_clicked();
+    void on_utility_clicked();
     void on_rbMove_clicked();
     void on_rbSpray_clicked();
     void on_rbChop_clicked();
     void on_rbCarry_clicked();
     void on_rbOpen_clicked();
     void on_rbClose_clicked();
-    void on_rbEndTurn_clicked();
     void on_arrowU_clicked();
     void on_arrowD_clicked();
     void on_arrowL_clicked();
     void on_arrowR_clicked();
-
-
-
 };
 #endif // FIRERESCUE_H

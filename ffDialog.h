@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QRadioButton>
+#include <QPushButton>
 
 class FfDialog : public QDialog
 {
@@ -11,6 +12,7 @@ class FfDialog : public QDialog
 public:
     FfDialog(QWidget *parent = nullptr);
     QRadioButton *player[6];
+    QPushButton *start;
     int selectedButtonIndex;
 };
 
