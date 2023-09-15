@@ -32,7 +32,6 @@ public:
     void rollDice(int slot);
     bool checkNewSpot(int slot);
     void placeHazmat(int location);
-    void placePOI(int location);
     void delayTimer(int delay);
     void movePlayer(int location, int direction);
     void spray(int location, int direction);
@@ -42,7 +41,9 @@ public:
     void nextPlayer();
     void fireTurn();
     void universalAction(int direction);
-    void redrawPoi();
+    int  newPoiLocation();
+    void sortPoi();
+
     void ffDialog();
 
 private:
@@ -66,10 +67,10 @@ private:
     QLabel *ffExtra[6];
     QLabel *poiExtra[3];
 
+
     std::vector<std::pair <int, int>> players;                  // vector of the loactions of each FF and number of actions
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
-    std::vector<std::pair<int, int>> poiPair;                   // pair of POI number and POI location 
 
     bool ffBlock = true;        // blocker to keep rb's inactive while setting the number of ff
     bool setUpGameOn;
@@ -96,8 +97,11 @@ private:
     int  value6;
     int  poiSaved = 0;
     int  poiLost = 0;
+    int  lastPoi;
     int  ambulance[8]= {5,6,30,40,39,49,73,74};
-    
+    struct poiStruct {int poi; int location; int state;};
+    poiStruct poiArray[3];
+    poiStruct poiTemp;
     QList<QLabel *> labels;
     Board m_theBoard;
 

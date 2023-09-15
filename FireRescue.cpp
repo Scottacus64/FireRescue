@@ -70,14 +70,11 @@ FireRescue::FireRescue(QWidget *parent)
     {
         poiList.push_back(i);
     }
-    for (int i=0; i<5; i++) {poiList.push_back(0);}         // 0 is a blank POI chip
+    for (int i=0; i<5; i++) {poiList.push_back(1);}         // 0 is a blank POI chip
     // Shuffle the vector
     std::random_device rd;
     std::mt19937 rng(rd());
     std::shuffle(poiList.begin(), poiList.end(), rng);
-
-   // for (int i=0; i<6; i++){ffExtra[i] = nullptr; }
-    for (int i=0; i<3; i++){poiExtra[i] = nullptr; }
     setUpGameOn = true;
 
     for (int i=0; i<6; i++)
@@ -148,7 +145,16 @@ void FireRescue::setUpGame()
     rollDice(0);
     bool onFire = false;
     int location;
+    int poiSlot = 0;
     ui->label->setVisible(true);
+
+    for (int i=0; i<3; i++) 
+    {
+        int poiValue = poiList.back();
+        poiList.pop_back();
+        poiArray[i] = {poiValue,100,0};
+    }
+
     for (int startUpSequence=0; startUpSequence<13; startUpSequence++)
     {
         if (startUpSequence == 0)                            // explosion 1
@@ -213,19 +219,12 @@ void FireRescue::setUpGame()
         if (startUpSequence >6 && startUpSequence <10)          // place POI
         {
             ui->label->setText("Place 3 Persons" + QString::number(startUpSequence-6));
-            onFire = true;
-            int poiHere = 20;
-            while (onFire == true || poiHere < 14)
-            {
-                onFire = checkNewSpot(6);
-                location = ((value6)*10)+(value8);
-                MapCell* cell = m_theBoard.GetCell(location); 
-                poiHere = cell->getPoi();
-                //std::cout  << value6 << "," << value8 << "fire: " << onFire << " Poi: " << poiHere << "\n";
-            }
-            placePOI(location);
+            location = newPoiLocation();
+            poiArray[poiSlot].location = location;
+            poiSlot ++;
             delayTimer(50);
         }
+        sortPoi();
         if (startUpSequence > 9 && startUpSequence <13)         // place Hot Spots
         {
             ui->label->setText("Place 3 Hot Spots" + QString::number(startUpSequence-9));
@@ -247,6 +246,46 @@ void FireRescue::setUpGame()
     refreshBoard();
     setUpGameOn = false;
     placeFF();
+}
+
+
+int FireRescue::newPoiLocation()
+{
+    bool onFire = true;
+    bool poiHere = false;
+    int location;
+    
+    while (onFire == true || poiHere == true)
+    {
+        onFire = checkNewSpot(6);
+        location = ((value6)*10)+(value8);
+        int poiMatch = 0;
+        for (int i=0; i<3; i++) 
+        {
+            if (poiArray[i].location == location){poiMatch++;}
+        }
+        MapCell* cell = m_theBoard.GetCell(location); 
+        onFire = cell->getFire();
+        if (poiMatch>0){poiHere = true;}
+        else {poiHere = false;}
+    }
+    return location;
+}
+
+void FireRescue::sortPoi()
+{
+    for (int j=0; j<2; j++)
+    {
+        for (int i=0; i<2; i++)
+        {
+            if (poiArray[i].poi < poiArray[i+1].poi)
+            {
+                poiTemp = poiArray[i];
+                poiArray[i] = poiArray[i+1];
+                poiArray[i+1] = poiTemp;
+            }
+        }
+    }
 }
 
 
@@ -449,25 +488,15 @@ void FireRescue::movePlayer(int location, int direction)
         players[activeFF].first+=offset;
         cell->removeFireFighter(activeFF);
         dCell->setFireFighter(activeFF);
-
-        int checkPoi = dCell->getPoi();
-        //std::cout << "poi = " << checkPoi << "\n";
-        if (checkPoi < 11){dCell->setPoiState(true);}
+        for (int i=0; i<3; i++)
+        {
+            if (poiArray[i].location == location+offset){poiArray[i].state = 1;}
+        }
         ffMoves --;
         refreshBoard();
     }  
 }
 
-
-void FireRescue::redrawPoi()
-{
-    for (int k=0; k<3; k++)
-    {
-        MapCell* pCell = m_theBoard.GetCell(poiPair[k].second);
-        pCell->setPoi(poiPair[k].first);
-    }
-    refreshBoard();
-}
 
 
 void FireRescue::spray(int location, int direction)
@@ -522,7 +551,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     int poiSlot = 20;
     for (int i=0; i<3; i++)
     {
-        if (poiPair[i].second == location && poiPair[i].first != 0) {poiSlot = i;}
+        if (poiArray[i].location == location && poiArray[i].poi != 0) {poiSlot = i;}
     }
     if (direction==0){offset = -10;}
     else if (direction==1){offset = -1;}
@@ -533,8 +562,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     {
         bool amb = false;
         cell->removeFireFighter(activeFF);
-        int target = poiPair[poiSlot].first;
-        cell->setPoi(20);
+        int target = poiArray[poiSlot].poi;
         players[slot].first += offset;
         dCell = m_theBoard.GetCell(players[slot].first);
         ffMoves -=2;
@@ -548,37 +576,22 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
             ui->personsSaved->setText("Persons Saved " + QString::number(poiSaved));
             for (int i=0; i<3; i++) 
             {
-                if ((poiPair[i].first == poiPair[poiSlot].first) &&  poiPair[i].first != 0) 
+                if ((poiArray[i].poi == poiArray[poiSlot].poi) &&  poiArray[i].poi != 0) 
                 {  
-                    poiPair.erase(poiPair.begin() + i);
-                    for (int j=0; j<3; j++)
-                    {
-                        if (j !=i){std::cout << poiPair[j].first << "/" << poiPair[j].second << "\n";}
-                    }
+                    poiArray[i].location = 100;
+                    lastPoi = i;
                     poiSaved ++;
                     ui->personsSaved->setText("Persons Saved = " + QString::number(poiSaved));
                     break;
                 }
             }
             if (poiSaved > 6){std::cout << "WIN!!";}
-            dCell->setPoi(20);
         }
         else
         {
-            dCell->setPoi(target);
-            dCell->setPoiState(true);
-            poiPair[poiSlot].second = location + offset;       
-            
+            poiArray[poiSlot].location = location + offset; 
+            poiArray[poiSlot].state = 1;        
         }
-        for (int i=0; i<80; i++)
-        {
-            if (i%10 == 0){std::cout << "\n";}
-            MapCell* cell = m_theBoard.GetCell(i);
-            std::cout<< cell->getPoi() << "/";
-            
-        }
-        std::cout << "\n";
-    redrawPoi();
     refreshBoard();
     } 
 }
@@ -586,17 +599,6 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
 
 void FireRescue::refreshBoard()
 {
-    for (int i = 0; i < 3; ++i) 
-    {
-        if (poiExtra[i] != nullptr) 
-        {
-            poiExtra[i]->hide();
-            std::cout << "Deleted poi " << poiExtra[i] << "\n";
-            delete poiExtra[i];
-            poiExtra[i] = nullptr; // Optional: Set the pointer to nullptr after deleting
-        }
-    } 
-
     for (QLabel* label : labels)  
     {
         if (label != nullptr) 
@@ -654,45 +656,46 @@ void FireRescue::refreshBoard()
         bool iFire = cell->getFire();
         bool iHotSpot = cell->getHotSpot();
         bool iHazmat = cell->getHazmat();
-        int  iPoi = cell->getPoi();
-        bool poiState = cell->getPoiState();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iSmoke==false && iFire==false){ui->leftUpperDisk[i]->setPixmap(QPixmap());}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
         if (iHazmat == true){ui->rightUpperDisk[i]->setPixmap(hazmat);}
-
-        int poiStack = 0;
-        if (iPoi < 14)
-        {
-            if (poiState == true)
-            {
-                for (int j=0; j<3; j++)
-                {
-                    if (i == poiPair[j].second){poiStack ++;}
-                }
-                if (poiStack > 1)
-                {
-                    
-                    int row = i / 10;
-                    int col = i % 10;
-                    for (int k=0; k<poiStack-1; k++)
-                    {
-                        poiExtra[k] = new QLabel("poiExtra", this);
-                        poiExtra[k]->setGeometry(QRect(392+(col*127)+(7*(k+1)), 65+(row*125), 60, 60));
-                        poiExtra[k]->setPixmap(poi[0]);
-                        poiExtra[k]->show();
-                    }
-                }
-                //std::cout << "showPoi: " << iPoi << "\n";
-                ui->rightLowerDisk[i]->setPixmap(poi[iPoi]);
-                ui->rightLowerDisk[i]->raise();
-            }
-            else
-            {ui->rightLowerDisk[i]->setPixmap(poi[11]);}
-        }
-        else {ui->rightLowerDisk[i]->setPixmap(QPixmap());}
+        ui->rightLowerDisk[i]->setPixmap(QPixmap());
     }
+    int multPoi = 0;
+    for (int i=0; i<2; i++)
+    {
+        for (int j=i+1; j<3; j++)
+        {
+            if (poiArray[i].location == poiArray[j].location){multPoi++;}
+        }
+    }
+    if (multPoi>2){multPoi = 2;}
+    for (int i=0; i<3; i++)
+    {
+        if (poiArray[i].location < 80)
+        {
+            if (poiArray[i].state == 0){ui->rightLowerDisk[poiArray[i].location]->setPixmap(poi[11]);}
+            else
+            {
+                if (multPoi > 0)
+                {
+                    int row = poiArray[i].location / 10;
+                    int col = poiArray[i].location % 10;
+                    poiExtra[multPoi] = new QLabel( this);
+                    poiExtra[multPoi]->setGeometry(QRect(392+(col*127)+(multPoi*7), 65+(row*125), 60, 60));
+                    poiExtra[multPoi]->setPixmap(poi[poiArray[i].poi]);
+                    poiExtra[multPoi]->show();
+                    labels.push_back(poiExtra[multPoi]);
+                    multPoi --;
+                }
+                else
+                {ui->rightLowerDisk[poiArray[i].location]->setPixmap(poi[poiArray[i].poi]);}
+            }
+        }
+    }
+
     int doorNum;
     for (int i=0; i<178; i++)
     {
@@ -813,18 +816,6 @@ void FireRescue::placeHazmat(int location)
     MapCell* cell = m_theBoard.GetCell(location);
     cell->setHazmat(true);
     refreshBoard();
-}
-
-
-void FireRescue::placePOI(int location)
-{
-    MapCell* cell = m_theBoard.GetCell(location);
-    int poi = poiList.back();
-    poiList.pop_back();
-    cell->setPoi(poi);
-    std::size_t pairSize = poiPair.size();
-    poiPair.push_back(std::make_pair(poi, location));
-    refreshBoard();  
 }
 
 
@@ -995,18 +986,20 @@ void FireRescue::fireTurn()
     placeSmoke(location);
     refreshBoard();
     delayTimer(500);
-    if (poiPair.size() < 3)
+    bool newPoi = false;
+    for (int i=0; i<3; i++)
     {
-        bool onFire = true;
-        int poiHere = 20;
-        while (onFire == true || poiHere < 14)
-        {
-            onFire = checkNewSpot(6);
-            location = ((value6)*10)+(value8);
-            MapCell* cell = m_theBoard.GetCell(location); 
-            poiHere = cell->getPoi();
-        }
-        placePOI(location);
+        if (poiArray[i].location > 80){newPoi = true;}
+    }
+    if (newPoi == true)
+    {
+        location = newPoiLocation();
+        int poi = poiList.back();
+        poiList.pop_back();
+        poiArray[lastPoi].poi = poi;
+        poiArray[lastPoi].location = location;
+        poiArray[lastPoi].state = 0;
+        sortPoi();
         refreshBoard();
         delayTimer(500);
     }

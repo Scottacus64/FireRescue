@@ -22,8 +22,6 @@ public:
     bool getHazmat();
     bool getHotSpot();
     bool getChecked();
-    bool getPoiState();
-    int  getPoi();
     std::vector<int> getFireFighter();
     int  getID();
 
@@ -33,8 +31,6 @@ public:
     void setHazmat(bool hazmat);
     void setHotSpot(bool hotSpot);
     void setChecked(bool checked);
-    void setPoi(int poi);
-    void setPoiState(bool state);
     void setFireFighter(int fireFighter);
     void removeFireFighter(int fireFighter);
     void printBoard();
@@ -51,9 +47,6 @@ private:
     bool smoke;
     bool hazmat;
     bool checked;
-    int  poi;
-
-    bool poiState;
     bool hotSpot;
     
     int  wallArray[4];

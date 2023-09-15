@@ -48,7 +48,7 @@ MapCell::MapCell()
 
 
 MapCell::MapCell(int gridLocation)
-    : fire(false), smoke(false), hazmat(false), hotSpot(false), poi(20), poiState(false), fireFighter(), checked(false), id(gridLocation)
+    : fire(false), smoke(false), hazmat(false), hotSpot(false), fireFighter(), checked(false), id(gridLocation)
 {}
 
 
@@ -70,14 +70,6 @@ bool MapCell::getHazmat()
 
 bool MapCell::getHotSpot()
 {return hotSpot;}
-
-
-int MapCell::getPoi()
-{return poi;}
-
-
-bool MapCell::getPoiState()
-{return poiState;}
 
 
 std::vector<int> MapCell::getFireFighter() {
@@ -102,14 +94,6 @@ void MapCell::setHazmat(bool iHazmat)
 
 void MapCell::setHotSpot(bool iHotSpot)
 {hotSpot = iHotSpot;}
-
-
-void MapCell::setPoi(int iPoi)
-{poi = iPoi;}
-
-
-void MapCell::setPoiState(bool state)
-{poiState = state;}
 
 
 void MapCell::setFireFighter(int iFireFighter)
