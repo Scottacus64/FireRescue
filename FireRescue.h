@@ -21,6 +21,7 @@ public:
     void setUpGame();
     void explosion(int location);
     void placeSmoke(int location);
+    void checkSmokeFire(int location);
     void placeFire(int location);
     void refreshBoard();
     void cycleDoor(int location, int direction);
@@ -40,8 +41,6 @@ public:
     void placeFF();
     void nextPlayer();
     void fireTurn();
-    void printSmoke(int location);
-    void printFire(int location);
     void universalAction(int direction);
     void redrawPoi();
     void ffDialog();
@@ -67,7 +66,7 @@ private:
     QLabel *ffExtra[6];
     QLabel *poiExtra[3];
 
-    std::vector<std::pair <int, int>> players;   // vector of the loactions of each FF and number of actions
+    std::vector<std::pair <int, int>> players;                  // vector of the loactions of each FF and number of actions
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
     std::vector<std::pair<int, int>> poiPair;                   // pair of POI number and POI location 
@@ -95,6 +94,9 @@ private:
     int  getOthersideOfWall(int direction, int location);
     int  value8;
     int  value6;
+    int  poiSaved = 0;
+    int  poiLost = 0;
+    int  ambulance[8]= {5,6,30,40,39,49,73,74};
     
     QList<QLabel *> labels;
     Board m_theBoard;

@@ -13,9 +13,9 @@ FfDialog::FfDialog(QWidget *parent) : QDialog(parent)
         });
     }
     player[1]->setChecked(true);
+    selectedButtonIndex = 1;
     start = new QPushButton("start", this);
     start->setGeometry(150, 200, 100, 40);
     start->setText("Start");
-
     connect(start, &QPushButton::clicked, this, &QDialog::accept);
 }

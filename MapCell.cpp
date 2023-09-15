@@ -123,7 +123,7 @@ void MapCell::removeFireFighter(int iFireFighter)
     // Check if the value was found before attempting to erase
     if (it != fireFighter.end()) {
         fireFighter.erase(it);  // Erase the element at the found position
-        std::cout << "erased: " <<  *it << "\n";
+        //std::cout << "erased: " <<  *it << "\n";
     }
 }
 
