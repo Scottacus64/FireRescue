@@ -32,7 +32,7 @@ public:
     void rollDice(int slot);
     bool checkNewSpot(int slot);
     void delayTimer(int delay);
-    void movePlayer(int location, int direction);
+    void moveFF(int location, int direction);
     void spray(int location, int direction);
     void chop(int location, int direction);
     void carry(int slot, int location, int obj, int direction);
@@ -98,7 +98,7 @@ private:
     int  poiLost = 0;
     int  lastPoi;
     int  ambulance[8]= {5,6,30,40,39,49,73,74};
-    
+
     struct ffStruct {int ff; int location; int moves;};
     ffStruct ffArray[6];
     struct poiStruct {int poi; int location; int state;};

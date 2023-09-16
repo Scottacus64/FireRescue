@@ -82,7 +82,6 @@ FireRescue::FireRescue(QWidget *parent)
         ffArray[i].ff = i;
         ffArray[i].location = 100;
         ffArray[i].moves = 0;
-        //players.push_back(std::make_pair(100, 0));
     }
     ui->setupUi(this);
 }
@@ -103,12 +102,6 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
     /************* initial ff placement ****************/
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
-        //std::cout << placePlayer  << " " << gridLocation << "\n";
-        /*MapCell* cell = m_theBoard.GetCell(gridLocation);
-        cell->setFireFighter(placePlayer);
-        ffMoves = 0;
-        std::pair<int, int> newPair = {gridLocation, ffMoves};
-        players[placePlayer] = newPair;*/
         ffArray[ffStart].location = gridLocation;
         if (ffStart+1 < ffNumber) 
         {
@@ -448,7 +441,7 @@ void FireRescue::universalAction(int direction)
     {
         if (action==0)
         {
-            movePlayer(ffArray[activeFF].location, direction);
+            moveFF(ffArray[activeFF].location, direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==1)
@@ -476,7 +469,7 @@ void FireRescue::universalAction(int direction)
 }    
 
 
-void FireRescue::movePlayer(int location, int direction)   
+void FireRescue::moveFF(int location, int direction)   
 {
     MapCell* cell = m_theBoard.GetCell(location);
     int base = baseValue(location);
@@ -566,6 +559,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
         int target = poiArray[poiSlot].poi;
         ffArray[slot].location += offset;
         ffMoves -=2;
+        for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}
         for (int i=0; i<8; i++)
         {
             if(ffArray[slot].location == ambulance[i]){amb = true;}
@@ -584,7 +578,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
                     break;
                 }
             }
-            if (poiSaved > 6){std::cout << "WIN!!";}
+            if (poiSaved > 6){std::cout << "WIN!!\n";}
         }
         else
         {
@@ -750,8 +744,6 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 }
 
 
-
-
 void FireRescue::placeSmoke(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
@@ -802,6 +794,20 @@ void FireRescue::placeFire(int location)
     {
         cell->setFire(true);                           // set fire to true and...
         cell->setSmoke(false);                         // turn off smoke so we can't infinitely loop here
+        for (int i=0; i<3; i++)
+        {
+            if (poiArray[i].location==location)
+            {
+                if (poiArray[i].poi != 0)
+                {
+                    poiLost++;
+                    ui->personsLost->setText("Persons lost = " + QString::number(poiLost));
+                    if (poiLost > 3){std::cout << "Game Lost\n";}
+                }
+                poiArray[i].location = 100;
+                lastPoi = i;
+            }
+        }
         std::vector<MapCell*> nearCells = adjacentCells(location);    //  populate the vector with the surrounding cells
         for (int i=0; i<4; i++)                                       // step through each cell
         {    
@@ -957,7 +963,7 @@ void FireRescue::shockWave(int direction, int location)
 void FireRescue::damageWall(int direction, int location, int base)
 {
     wallDamage ++;
-    if (wallDamage > 21){std::cout << "GAME OVER" << "\n";}
+    if (wallDamage > 21){std::cout << "GAME OVER\n";}
     ui->damage->setText("Damage = " + QString::number(wallDamage));
     int barrier = m_MapArray[base + baseOffset[direction]];
     m_MapArray[base + baseOffset[direction]] = barrier - 1;
@@ -1005,20 +1011,23 @@ void FireRescue::fireTurn()
     bool newPoi = false;
     for (int i=0; i<3; i++)
     {
-        if (poiArray[i].location > 80){newPoi = true;}
-    }
-    if (newPoi == true)
-    {
-        location = newPoiLocation();
-        int poi = poiList.back();
-        poiList.pop_back();
-        poiArray[lastPoi].poi = poi;
-        poiArray[lastPoi].location = location;
-        poiArray[lastPoi].state = 0;
-        sortPoi();
-        refreshBoard();
-        delayTimer(500);
-    }
+        if (poiArray[i].location > 80)
+        {
+            location = newPoiLocation();
+            int poi = poiList.back();
+            bool match = false;
+            poiList.pop_back();
+            poiArray[i].poi = poi;
+            poiArray[i].location = location;
+            // check to see if a poi was dropped on a ff
+            for (int i=0; i<ffNumber; i++){if (location == ffArray[i].location){match = true;}}
+            if (match == true){poiArray[i].state = 1;}
+            else {poiArray[i].state = 0;}
+            sortPoi();
+            refreshBoard();
+        }
+    } 
+    delayTimer(500);
     nextPlayer();
 }
 
