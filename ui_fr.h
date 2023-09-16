@@ -30,9 +30,6 @@ public:
     QLabel *label;
     QLabel *centerDisk[80];
     QLabel *leftUpperDisk[80];
-    //QLabel *leftLowerDisk[80];
-    QLabel *rightUpperDisk[80];
-    QLabel *rightLowerDisk[80];
     QLabel *door[9];
     QLabel *cube[43];
     QLabel *hs[12];
@@ -107,20 +104,7 @@ public:
                 leftUpperDisk[x] = new QLabel(FireRescue); 
                 leftUpperDisk[x]->setObjectName("leftUpperDisk"+QString::number(x));
                 leftUpperDisk[x]->setPixmap(QPixmap());
-                leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));
-
-
-                rightLowerDisk[x] = new QLabel(FireRescue); 
-                rightLowerDisk[x]->setObjectName("rightLowerDisk"+QString::number(x));
-                rightLowerDisk[x]->setPixmap(QPixmap());
-                rightLowerDisk[x]->setGeometry(QRect(392+(col*127), 65+(row*125), 60, 60));
-
-                rightUpperDisk[x] = new QLabel(FireRescue); 
-                rightUpperDisk[x]->setObjectName("rightUpperDisk"+QString::number(x));
-                rightUpperDisk[x]->setPixmap(QPixmap());
-                rightUpperDisk[x]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
-
-                
+                leftUpperDisk[x]->setGeometry(QRect(332+(col*127), 5+(row*125), 60, 60));                
             }
         }
         /*********************** set up the QTable ********************/
@@ -136,20 +120,14 @@ public:
         tableWidget->setColumnCount(10);
         tableWidget->horizontalHeader()->setVisible(false);
         tableWidget->horizontalHeader()->setDefaultSectionSize(127);
-
-        
-
         tableWidget->verticalHeader()->setVisible(false);
         tableWidget->verticalHeader()->setDefaultSectionSize(125);
         tableWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
         tableWidget->setStyleSheet("QTableWidget { background-color: transparent; }"
                            "QTableWidget::item { selection-background-color: transparent; }"
                            "QTableWidget::item:selected { background-color: transparent; }");
-
-
 
         label = new QLabel(FireRescue);
         label->setObjectName("label");
@@ -164,9 +142,7 @@ public:
 
         QPixmap fire("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire.png");
         QPixmap smoke("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke.png");
-        QPixmap hazmat("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHazmat.png");
         QPixmap hotSpot("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHotSpot.png");
-        QPixmap poi3("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi3.png");
         QPixmap doorClosed("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorClosed.png");
         QPixmap doorOpen("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
         QPixmap square("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
@@ -178,7 +154,6 @@ public:
         QPixmap aR("/Users/scottmiller/VSC/CPP/FireRescue/Resources/aR.png");
         QPixmap ffR("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffR.png");
        
-
         /********************** set up the doors ********************/
         for (int i=0; i<9; i++)
         {

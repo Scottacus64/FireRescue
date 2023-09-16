@@ -79,7 +79,10 @@ FireRescue::FireRescue(QWidget *parent)
 
     for (int i=0; i<6; i++)
     {
-        players.push_back(std::make_pair(100, 0));
+        ffArray[i].ff = i;
+        ffArray[i].location = 100;
+        ffArray[i].moves = 0;
+        //players.push_back(std::make_pair(100, 0));
     }
     ui->setupUi(this);
 }
@@ -97,18 +100,19 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
     gridLocation = (row*10) + col;
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
     bool onFire = cell->getFire();
-
+    /************* initial ff placement ****************/
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
         //std::cout << placePlayer  << " " << gridLocation << "\n";
-        MapCell* cell = m_theBoard.GetCell(gridLocation);
+        /*MapCell* cell = m_theBoard.GetCell(gridLocation);
         cell->setFireFighter(placePlayer);
         ffMoves = 0;
         std::pair<int, int> newPair = {gridLocation, ffMoves};
-        players[placePlayer] = newPair;
-        if (placePlayer+1 < ffNumber) 
+        players[placePlayer] = newPair;*/
+        ffArray[ffStart].location = gridLocation;
+        if (ffStart+1 < ffNumber) 
         {
-            placePlayer ++;
+            ffStart ++;
             placeFF();
         }
         else 
@@ -127,10 +131,10 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
 
 void FireRescue::nextPlayer()
 {
-    players[activeFF].second = ffMoves;
+    ffArray[activeFF].moves = ffMoves;
     activeFF ++;
     if (activeFF+1 > ffNumber) {activeFF = 0;}
-    ffMoves = players[activeFF].second + 5;
+    ffMoves = ffArray[activeFF].moves + 5;
     ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
     ui->ffUpIcon->setPixmap(ff[activeFF]);
     ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
@@ -204,16 +208,16 @@ void FireRescue::setUpGame()
         {
             ui->label->setText("Place Hazmat " + QString::number(startUpSequence-2));
             onFire = true;
-            bool hazmatHere = true;
+            bool hazmatHere = false;
+            int location;
             while (onFire == true || hazmatHere == true )
             {
                 onFire = checkNewSpot(3);
                 location = ((value6)*10)+(value8);
-                MapCell* cell = m_theBoard.GetCell(location); 
-                hazmatHere = cell->getHazmat();
-                //std::cout  << value6 << "," << value8 << "fire: " << onFire << " Haz: " << hazmatHere << "\n";
+                for (int i=0; i<4; i++)
+                {if (location == hazmatLocation[i]){hazmatHere = true;}}
             }
-            placeHazmat(location);
+            hazmatLocation[startUpSequence-3] = location;
             delayTimer(50);
         }
         if (startUpSequence >6 && startUpSequence <10)          // place POI
@@ -291,8 +295,8 @@ void FireRescue::sortPoi()
 
 void FireRescue::placeFF()
 {  
-    ui->ffUp->setText("Fire Fighter "+ QString::number(placePlayer));
-    ui->ffUpIcon->setPixmap(ff[placePlayer]);
+    ui->ffUp->setText("Fire Fighter "+ QString::number(ffStart));
+    ui->ffUpIcon->setPixmap(ff[ffStart]);
     ui->information->setText("Please click on a street square to place the Fire Fighter");
 }
 
@@ -436,35 +440,35 @@ void FireRescue::universalAction(int direction)
 {
     int offest, limit;
     bool takeAction = false;
-    if (direction==0){takeAction = players[activeFF].first-10>-1;}
-    else if (direction==1){takeAction = players[activeFF].first%10 != 0;}
-    else if (direction==2){takeAction = (players[activeFF].first+1)%10 != 0;}
-    else {takeAction = (players[activeFF].first+10)<80;}
+    if (direction==0){takeAction = ffArray[activeFF].location-10 > -1;}
+    else if (direction==1){takeAction = ffArray[activeFF].location%10 != 0;}
+    else if (direction==2){takeAction = (ffArray[activeFF].location+1)%10 != 0;}
+    else {takeAction = (ffArray[activeFF].location+10)<80;}
     if (takeAction == true)
     {
         if (action==0)
         {
-            movePlayer(players[activeFF].first, direction);
+            movePlayer(ffArray[activeFF].location, direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==1)
         {
-            spray(players[activeFF].first,direction);
+            spray(ffArray[activeFF].location,direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==2)
         {
-            chop(players[activeFF].first,direction);
+            chop(ffArray[activeFF].location,direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==3 && ffMoves >1)
         {
-            carry(activeFF, players[activeFF].first, 0, direction);
+            carry(activeFF, ffArray[activeFF].location, 0, direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
         else if (action==4 || action==5) 
         {
-            cycleDoor(players[activeFF].first,direction);
+            cycleDoor(ffArray[activeFF].location,direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
     }
@@ -485,9 +489,7 @@ void FireRescue::movePlayer(int location, int direction)
     MapCell* dCell = m_theBoard.GetCell(location+offset);
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && ffMoves>0)
     {
-        players[activeFF].first+=offset;
-        cell->removeFireFighter(activeFF);
-        dCell->setFireFighter(activeFF);
+        ffArray[activeFF].location +=offset;
         for (int i=0; i<3; i++)
         {
             if (poiArray[i].location == location+offset){poiArray[i].state = 1;}
@@ -561,15 +563,12 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && poiSlot < 20)
     {
         bool amb = false;
-        cell->removeFireFighter(activeFF);
         int target = poiArray[poiSlot].poi;
-        players[slot].first += offset;
-        dCell = m_theBoard.GetCell(players[slot].first);
+        ffArray[slot].location += offset;
         ffMoves -=2;
-        dCell->setFireFighter(slot);
         for (int i=0; i<8; i++)
         {
-            if(players[slot].first == ambulance[i]){amb = true;}
+            if(ffArray[slot].location == ambulance[i]){amb = true;}
         }
         if (amb == true)
         {
@@ -614,14 +613,14 @@ void FireRescue::refreshBoard()
     for (int i=0; i<ffNumber; i++) 
     {
         bool match = false;
-        if (players[i].first < 80)
+        if (ffArray[i].location < 80)
         {
             for (int j=0; j<i; j++)
             {  
-                if (players[i].first == players[j].first)     // if the locations are the same
+                if (ffArray[i].location == ffArray[j].location)     // if the locations are the same
                 {
-                    int row = players[i].first / 10;
-                    int col = players[i].first % 10;
+                    int row = ffArray[i].location / 10;
+                    int col = ffArray[i].location % 10;
                     ffExtra[slot] = new QLabel( this);
                     ffExtra[slot]->setGeometry(QRect(332+(col*127)+((extra+1)*7), 65+(row*125), 60, 60));
                     ffExtra[slot]->setPixmap(ff[i]);
@@ -635,8 +634,8 @@ void FireRescue::refreshBoard()
             } 
             if (match == false)
             {
-                int row = players[i].first / 10;
-                int col = players[i].first % 10;
+                int row = ffArray[i].location / 10;
+                int col = ffArray[i].location % 10;
                 ffExtra[slot] = new QLabel(this);
                 ffExtra[slot]->setGeometry(QRect(332+(col*127), 65+(row*125), 60, 60));
                 ffExtra[slot]->setPixmap(ff[i]);
@@ -655,13 +654,10 @@ void FireRescue::refreshBoard()
         bool iSmoke = cell->getSmoke();
         bool iFire = cell->getFire();
         bool iHotSpot = cell->getHotSpot();
-        bool iHazmat = cell->getHazmat();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iSmoke==false && iFire==false){ui->leftUpperDisk[i]->setPixmap(QPixmap());}
         if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
-        if (iHazmat == true){ui->rightUpperDisk[i]->setPixmap(hazmat);}
-        ui->rightLowerDisk[i]->setPixmap(QPixmap());
     }
     int multPoi = 0;
     for (int i=0; i<2; i++)
@@ -676,25 +672,35 @@ void FireRescue::refreshBoard()
     {
         if (poiArray[i].location < 80)
         {
-            if (poiArray[i].state == 0){ui->rightLowerDisk[poiArray[i].location]->setPixmap(poi[11]);}
+            if (poiArray[i].state == 0)
+            {
+                makePoiLabel(i, 0);
+            }
             else
             {
                 if (multPoi > 0)
                 {
-                    int row = poiArray[i].location / 10;
-                    int col = poiArray[i].location % 10;
-                    poiExtra[multPoi] = new QLabel( this);
-                    poiExtra[multPoi]->setGeometry(QRect(392+(col*127)+(multPoi*7), 65+(row*125), 60, 60));
-                    poiExtra[multPoi]->setPixmap(poi[poiArray[i].poi]);
-                    poiExtra[multPoi]->show();
-                    labels.push_back(poiExtra[multPoi]);
+                    makePoiLabel(i, multPoi);
                     multPoi --;
                 }
                 else
-                {ui->rightLowerDisk[poiArray[i].location]->setPixmap(poi[poiArray[i].poi]);}
+                {makePoiLabel(i,0);}
             }
         }
     }
+
+    for (int i=0; i<4; i++)
+    {
+        int row = hazmatLocation[i] / 10;
+        int col = hazmatLocation[i] % 10;
+        hazmatLabel[i] = new QLabel(this);
+        hazmatLabel[i]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
+        hazmatLabel[i]->setPixmap(hazmat);
+
+        hazmatLabel[i]->show();
+        labels.push_back(hazmatLabel[i]);
+    }  
+    
 
     int doorNum;
     for (int i=0; i<178; i++)
@@ -727,6 +733,23 @@ void FireRescue::refreshBoard()
     }
     ui->tableWidget->raise();
 }
+
+void FireRescue::makePoiLabel(int slot, int multPoi)
+{
+    int row = poiArray[slot].location / 10;
+    int col = poiArray[slot].location % 10;
+    poiExtra[slot] = new QLabel(this);
+    poiExtra[slot]->setGeometry(QRect(392+(col*127)+(multPoi*7), 65+(row*125), 60, 60));
+    if (poiArray[slot].state == 0)
+    {poiExtra[slot]->setPixmap(poi[11]);}
+    else
+    {poiExtra[slot]->setPixmap(poi[poiArray[slot].poi]);}
+
+    poiExtra[slot]->show();
+    labels.push_back(poiExtra[slot]);
+}
+
+
 
 
 void FireRescue::placeSmoke(int location)
@@ -808,13 +831,6 @@ void FireRescue::placeHotSpot(int location)
         hotSpots -= 1;
         ui->hs[hotSpots]->setPixmap(QPixmap());
     }
-    refreshBoard();
-}
-
-void FireRescue::placeHazmat(int location)
-{
-    MapCell* cell = m_theBoard.GetCell(location);
-    cell->setHazmat(true);
     refreshBoard();
 }
 

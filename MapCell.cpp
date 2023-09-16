@@ -48,7 +48,7 @@ MapCell::MapCell()
 
 
 MapCell::MapCell(int gridLocation)
-    : fire(false), smoke(false), hazmat(false), hotSpot(false), fireFighter(), checked(false), id(gridLocation)
+    : fire(false), smoke(false), hazmat(false), hotSpot(false), checked(false), id(gridLocation)
 {}
 
 
@@ -72,9 +72,6 @@ bool MapCell::getHotSpot()
 {return hotSpot;}
 
 
-std::vector<int> MapCell::getFireFighter() {
-    return fireFighter;
-}
 
 int MapCell::getID()
 {return id;}
@@ -94,22 +91,6 @@ void MapCell::setHazmat(bool iHazmat)
 
 void MapCell::setHotSpot(bool iHotSpot)
 {hotSpot = iHotSpot;}
-
-
-void MapCell::setFireFighter(int iFireFighter)
-{
-    fireFighter.push_back(iFireFighter);
-}
-
-void MapCell::removeFireFighter(int iFireFighter)
-{ 
-    auto it = std::find(fireFighter.begin(), fireFighter.end(), iFireFighter);
-    // Check if the value was found before attempting to erase
-    if (it != fireFighter.end()) {
-        fireFighter.erase(it);  // Erase the element at the found position
-        //std::cout << "erased: " <<  *it << "\n";
-    }
-}
 
 
 void MapCell::printBoard()

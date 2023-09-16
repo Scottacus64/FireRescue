@@ -31,7 +31,6 @@ public:
     void placeHotSpot(int location);
     void rollDice(int slot);
     bool checkNewSpot(int slot);
-    void placeHazmat(int location);
     void delayTimer(int delay);
     void movePlayer(int location, int direction);
     void spray(int location, int direction);
@@ -43,7 +42,7 @@ public:
     void universalAction(int direction);
     int  newPoiLocation();
     void sortPoi();
-
+    void makePoiLabel(int slot, int multPoi);
     void ffDialog();
 
 private:
@@ -66,9 +65,8 @@ private:
     QLabel *damageSquare[40];
     QLabel *ffExtra[6];
     QLabel *poiExtra[3];
+    QLabel *hazmatLabel[4];
 
-
-    std::vector<std::pair <int, int>> players;                  // vector of the loactions of each FF and number of actions
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
 
@@ -85,7 +83,7 @@ private:
     int  wallDamage = 0;
     int  action;                // 0 = move, 1 = spray, 2 = chop, 3 = carry, 4 = open, 5 = close
     int  ffNumber;              // number of FF for this game
-    int  placePlayer = 0;
+    int  ffStart = 0;
     int  activeFF = 0;          // current FF
     int  ffMoves;               // number of actions a FF has   
     int  hotSpots = 12;
@@ -95,11 +93,16 @@ private:
     int  getOthersideOfWall(int direction, int location);
     int  value8;
     int  value6;
+    int  hazmatLocation[4] = {100, 100, 100, 100};
     int  poiSaved = 0;
     int  poiLost = 0;
     int  lastPoi;
     int  ambulance[8]= {5,6,30,40,39,49,73,74};
+    
+    struct ffStruct {int ff; int location; int moves;};
+    ffStruct ffArray[6];
     struct poiStruct {int poi; int location; int state;};
+    int  HazmatArray[4];
     poiStruct poiArray[3];
     poiStruct poiTemp;
     QList<QLabel *> labels;

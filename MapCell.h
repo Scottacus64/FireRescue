@@ -22,7 +22,6 @@ public:
     bool getHazmat();
     bool getHotSpot();
     bool getChecked();
-    std::vector<int> getFireFighter();
     int  getID();
 
 
@@ -31,12 +30,7 @@ public:
     void setHazmat(bool hazmat);
     void setHotSpot(bool hotSpot);
     void setChecked(bool checked);
-    void setFireFighter(int fireFighter);
-    void removeFireFighter(int fireFighter);
     void printBoard();
-
-    
-
 
 private:
     static int m_theMap[178];
@@ -54,7 +48,6 @@ private:
     int  doorState;
     int  m_index;
     
-    std::vector <int> fireFighter;
     std::unordered_map<int, int> cellToDoorMap;
 };
 #endif // MAPCELL_H
