@@ -7,6 +7,10 @@
 #include <QTimer>
 #include "ffDialog.h"
 #include <QMap>
+#include <cmath>
+#include <QDialog>
+#include <QRadioButton>
+#include <QPushButton>
 
 /* win is 7 POI rescued, loss is 4 POI lost or building collapse 24 damage markers*/
 
@@ -95,6 +99,9 @@ FireRescue::~FireRescue()
 
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
+    int carry = carryDialog();
+    std::cout << "CARRY = " << carry << "\n";
+    
     //std::cout << "setUpGame = " << setUpGameOn << "\n";
     gridLocation = (row*10) + col;
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
@@ -131,6 +138,7 @@ void FireRescue::nextPlayer()
     ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
     ui->ffUpIcon->setPixmap(ff[activeFF]);
     ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
+    flareUp = false;
 }
 
 
@@ -205,12 +213,18 @@ void FireRescue::setUpGame()
             int location;
             while (onFire == true || hazmatHere == true )
             {
+                hazmatHere = false;
                 onFire = checkNewSpot(3);
                 location = ((value6)*10)+(value8);
                 for (int i=0; i<4; i++)
-                {if (location == hazmatLocation[i]){hazmatHere = true;}}
+                {
+                    if (location == hazmatArray[i])
+                    {
+                        hazmatHere = true;
+                    }
+                }
             }
-            hazmatLocation[startUpSequence-3] = location;
+            hazmatArray[startUpSequence-3] = location;
             delayTimer(50);
         }
         if (startUpSequence >6 && startUpSequence <10)          // place POI
@@ -225,15 +239,21 @@ void FireRescue::setUpGame()
         if (startUpSequence > 9 && startUpSequence <13)         // place Hot Spots
         {
             ui->label->setText("Place 3 Hot Spots" + QString::number(startUpSequence-9));
+            onFire = true;
+            bool hotSpotHere = false;
             int location;
-            bool hotSpotHere = true;
-            while (hotSpotHere == true)
+            while (onFire == true || hotSpotHere == true )
             {
-                rollDice(startUpSequence);
+                hotSpotHere = false;
+                onFire = checkNewSpot(3);
                 location = ((value6)*10)+(value8);
-                MapCell* cell = m_theBoard.GetCell(location); 
-                hotSpotHere= cell->getHotSpot();
-                //std::cout << value6 << "," << value8 << " HotSpot: " << hotSpotHere << "\n";
+                for (int i=0; i<4; i++)
+                {
+                    if (location == hotSpotArray[i])
+                    {
+                        hotSpotHere = true;
+                    }
+                }
             }
             placeHotSpot(location);
             delayTimer(50);
@@ -604,6 +624,7 @@ void FireRescue::refreshBoard()
 
     int slot = 0;
     int extra = 0;
+    /******** show fire fighters ***********/
     for (int i=0; i<ffNumber; i++) 
     {
         bool match = false;
@@ -640,19 +661,18 @@ void FireRescue::refreshBoard()
             }
         }
     }
-
+    /********** show smoke and fire ***********/
     bool found;
     for (int i=0; i<80; i++)
     {
         MapCell* cell = m_theBoard.GetCell(i); 
         bool iSmoke = cell->getSmoke();
         bool iFire = cell->getFire();
-        bool iHotSpot = cell->getHotSpot();
         if (iSmoke == true){ui->leftUpperDisk[i]->setPixmap(smoke);}
         if (iFire == true){ui->leftUpperDisk[i]->setPixmap(fire);}
         if (iSmoke==false && iFire==false){ui->leftUpperDisk[i]->setPixmap(QPixmap());}
-        if (iHotSpot == true){ui->centerDisk[i]->setPixmap(hotSpot);}
     }
+    /********** show pois ************/
     int multPoi = 0;
     for (int i=0; i<2; i++)
     {
@@ -682,18 +702,30 @@ void FireRescue::refreshBoard()
             }
         }
     }
-
+    /********** show hazmats ***********/
     for (int i=0; i<4; i++)
     {
-        int row = hazmatLocation[i] / 10;
-        int col = hazmatLocation[i] % 10;
+        int row = hazmatArray[i] / 10;
+        int col = hazmatArray[i] % 10;
         hazmatLabel[i] = new QLabel(this);
         hazmatLabel[i]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
         hazmatLabel[i]->setPixmap(hazmat);
 
         hazmatLabel[i]->show();
         labels.push_back(hazmatLabel[i]);
-    }  
+    } 
+    /********** show hotSpots ***********/
+    for (int i=0; i<12; i++)
+    {
+        int row = hotSpotArray[i] / 10;
+        int col = hotSpotArray[i] % 10;
+        hotSpotLabel[i] = new QLabel(this);
+        hotSpotLabel[i]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));
+        hotSpotLabel[i]->setPixmap(hotSpot);
+
+        hotSpotLabel[i]->show();
+        labels.push_back(hotSpotLabel[i]);
+    } 
     
 
     int doorNum;
@@ -713,7 +745,6 @@ void FireRescue::refreshBoard()
             if (m_MapArray[i] == 0)
             {
                 ui->door[doorNum]->setPixmap(QPixmap());
-                
             }
             if (m_MapArray[i] == 3){ui->door[doorNum]->setPixmap(doorOpen);}
             if (m_MapArray[i] == 4){ui->door[doorNum]->setPixmap(doorClosed);}
@@ -746,7 +777,20 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 
 void FireRescue::placeSmoke(int location)
 {
+    bool flareUpOn = false;
+    std::cout << "Smoke Location = " << location << "\n";
     MapCell* cell = m_theBoard.GetCell(location);
+    for (int i=0; i<12; i++)
+    {
+        if (location == hotSpotArray[i])
+        {
+            flareUpCheck(location);
+            flareUpOn = true;
+            std::cout << "Hot Spot Hit at " << location << "\n";
+            for (int j=0; j<12; j++){std::cout << hotSpotArray[j] << " ";}
+            std::cout << "\n";
+        }
+    }
     cell->setSmoke(true);
     if (cell->getFire() == false) 
     {
@@ -760,6 +804,7 @@ void FireRescue::placeSmoke(int location)
     {
         explosion(location);
     }
+    if (flareUpOn == true){fireTurn();}
 }
 
 
@@ -794,6 +839,7 @@ void FireRescue::placeFire(int location)
     {
         cell->setFire(true);                           // set fire to true and...
         cell->setSmoke(false);                         // turn off smoke so we can't infinitely loop here
+        /******* check for pois to be destroyed *******/
         for (int i=0; i<3; i++)
         {
             if (poiArray[i].location==location)
@@ -808,6 +854,40 @@ void FireRescue::placeFire(int location)
                 lastPoi = i;
             }
         }
+        /******** check for hazmats to cause an explosion ********/
+        for (int i=0; i<4; i++)
+        {
+            if (location == hazmatArray[i])
+            {
+                hazmatArray[i] = 100;
+                explosion(location);
+            }
+        }
+        /********* check for fire fighters to get knocked down *********/
+        double distanceArray[8];
+        for (int i=0; i<6; i++)
+        {
+            if (location == ffArray[i].location)
+            {
+                int row = location%10;
+                int col = location/10;
+                for (int j=0; j<8; j++)
+                {
+                    int rowJ = ambulance[j]%10;
+                    int colJ = ambulance[j]/10;
+                    double dist = std::sqrt(((row-rowJ)*(row-rowJ)) + ((col-colJ)*(col-colJ)));
+                    distanceArray[j] = dist;
+                }
+            int size = sizeof(distanceArray) / sizeof(distanceArray[0]);
+            double* minDist = std::min_element(distanceArray, distanceArray + size);
+            for (int j=0; j<8; j++)
+            {
+                if (distanceArray[j] == *minDist){ffArray[i].location = ambulance[j];}
+            }
+            }
+        }
+        /********** check for hot spots to cause a flare up ************/
+
         std::vector<MapCell*> nearCells = adjacentCells(location);    //  populate the vector with the surrounding cells
         for (int i=0; i<4; i++)                                       // step through each cell
         {    
@@ -829,15 +909,29 @@ void FireRescue::placeFire(int location)
 
 void FireRescue::placeHotSpot(int location)
 {
-    MapCell* cell = m_theBoard.GetCell(location);
-    bool hs = cell->getHotSpot();
-    if (hotSpots > 0 && hs==false)
+    for (int i=0; i<12; i++)
     {
-        cell->setHotSpot(true);
-        hotSpots -= 1;
-        ui->hs[hotSpots]->setPixmap(QPixmap());
+        if (hotSpotArray[i] > 80)
+        {
+            hotSpotArray[i] = location;
+            hotSpots -= 1;
+            ui->hs[hotSpots]->setPixmap(QPixmap());
+            i=12;
+            break;
+        }
     }
     refreshBoard();
+}
+
+
+void FireRescue::flareUpCheck(int location)
+{
+    if (flareUp == false)
+    {
+        placeHotSpot(location);
+    }
+    flareUp = true;
+    std::cout << "flareUp = " << flareUp << "\n";
 }
 
 
@@ -1031,3 +1125,33 @@ void FireRescue::fireTurn()
     nextPlayer();
 }
 
+int FireRescue::carryDialog()
+{
+    QDialog carryDialog;
+
+    QPushButton carryPoi("Carry Poi", &carryDialog);
+    carryPoi.setGeometry(100, 50, 100, 50); 
+
+    QPushButton carryHazmat("Carry Hazmat", &carryDialog);
+    carryPoi.setGeometry(0, 50, 100, 50); 
+
+    // Variable to store the result (0 or 1)
+    int toCarry = -1; // Initialize it to an invalid value
+
+    // Connect the button's click signals to set the variable toCarry and close the dialog
+    QObject::connect(&carryPoi, &QPushButton::clicked, [&toCarry, &carryDialog]() {
+        toCarry = 0;
+        carryDialog.accept(); // Close the dialog
+    });
+
+    QObject::connect(&carryHazmat, &QPushButton::clicked, [&toCarry, &carryDialog]() {
+        toCarry = 1;
+        carryDialog.accept(); // Close the dialog
+    });
+
+    // Show the dialog
+    carryDialog.exec(); // Blocks until the dialog is closed
+
+    // Now, the variable "toCarry" contains the selected value (0 or 1)
+    return toCarry;
+}

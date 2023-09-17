@@ -64,15 +64,6 @@ bool MapCell::getFire()
 {return fire;}
 
 
-bool MapCell::getHazmat()
-{return hazmat;}
-
-
-bool MapCell::getHotSpot()
-{return hotSpot;}
-
-
-
 int MapCell::getID()
 {return id;}
 
@@ -83,14 +74,6 @@ void MapCell::setSmoke(bool iSmoke)
 
 void MapCell::setFire(bool iFire)
 {fire = iFire;}
-
-
-void MapCell::setHazmat(bool iHazmat)
-{hazmat = iHazmat;}
-
-
-void MapCell::setHotSpot(bool iHotSpot)
-{hotSpot = iHotSpot;}
 
 
 void MapCell::printBoard()

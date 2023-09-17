@@ -19,16 +19,12 @@ public:
     int id;
     bool getSmoke();
     bool getFire();
-    bool getHazmat();
-    bool getHotSpot();
     bool getChecked();
     int  getID();
 
 
     void setSmoke(bool smoke);
     void setFire(bool fire);
-    void setHazmat(bool hazmat);
-    void setHotSpot(bool hotSpot);
     void setChecked(bool checked);
     void printBoard();
 

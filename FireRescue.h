@@ -29,6 +29,7 @@ public:
     void shockWave(int direction, int location);
     void damageWall(int direction, int location, int base); 
     void placeHotSpot(int location);
+    void flareUpCheck(int location);
     void rollDice(int slot);
     bool checkNewSpot(int slot);
     void delayTimer(int delay);
@@ -44,6 +45,7 @@ public:
     void sortPoi();
     void makePoiLabel(int slot, int multPoi);
     void ffDialog();
+    int  carryDialog();
 
 private:
     Ui::FireRescue *ui;
@@ -66,6 +68,10 @@ private:
     QLabel *ffExtra[6];
     QLabel *poiExtra[3];
     QLabel *hazmatLabel[4];
+    QLabel *hotSpotLabel[12];
+
+    QPushButton carryPoi;
+    QPushButton *carryHazmat;
 
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
@@ -75,6 +81,7 @@ private:
     bool fireOn = false;
     bool doorOn = false;
     bool smokeOn = false;
+    bool flareUp = false;
 
     int* m_MapArray;
     int* m_WallArray;
@@ -93,7 +100,6 @@ private:
     int  getOthersideOfWall(int direction, int location);
     int  value8;
     int  value6;
-    int  hazmatLocation[4] = {100, 100, 100, 100};
     int  poiSaved = 0;
     int  poiLost = 0;
     int  lastPoi;
@@ -102,7 +108,8 @@ private:
     struct ffStruct {int ff; int location; int moves;};
     ffStruct ffArray[6];
     struct poiStruct {int poi; int location; int state;};
-    int  HazmatArray[4];
+    int  hazmatArray[4] = {100, 100, 100, 100};
+    int  hotSpotArray[12] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
     poiStruct poiArray[3];
     poiStruct poiTemp;
     QList<QLabel *> labels;
