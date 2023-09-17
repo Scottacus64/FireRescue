@@ -99,14 +99,10 @@ FireRescue::~FireRescue()
 
 void FireRescue::on_tableWidget_cellClicked(int row, int col)
 {
-    int carry = carryDialog();
-    std::cout << "CARRY = " << carry << "\n";
-    
-    //std::cout << "setUpGame = " << setUpGameOn << "\n";
     gridLocation = (row*10) + col;
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
     bool onFire = cell->getFire();
-    /************* initial ff placement ****************/
+    /************* initial FF placement ****************/
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
         ffArray[ffStart].location = gridLocation;
@@ -564,49 +560,76 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     int barrier = m_MapArray[base + baseOffset[direction]];
     int offset;
     int poiSlot = 20;
+    int hazmatSlot = 100;
+    int poiHazmat = 0;
+    int carry = -1;
     for (int i=0; i<3; i++)
     {
-        if (poiArray[i].location == location && poiArray[i].poi != 0) {poiSlot = i;}
+        if (poiArray[i].location == location && poiArray[i].poi != 0) {poiSlot = i; poiHazmat = 1; }
+    }
+    for (int i=0; i<4; i++)
+    {
+        if (hazmatArray[i] == location) {hazmatSlot = i; poiHazmat ++;}
     }
     if (direction==0){offset = -10;}
     else if (direction==1){offset = -1;}
     else if (direction==2){offset = 1;}
     else {offset = 10;}
-    MapCell* dCell = m_theBoard.GetCell(location+offset);    
-    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && poiSlot < 20)
+    MapCell* dCell = m_theBoard.GetCell(location+offset); 
+    if (poiHazmat == 2) {carry = carryDialog();}                // open the dialog to choose hazmat 0 or poi 1  
+    std::cout << "Carry = " << carry << "\n";      
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && (poiSlot < 20 || hazmatSlot < 100))
     {
-        bool amb = false;
-        int target = poiArray[poiSlot].poi;
-        ffArray[slot].location += offset;
-        ffMoves -=2;
-        for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}
-        for (int i=0; i<8; i++)
-        {
-            if(ffArray[slot].location == ambulance[i]){amb = true;}
-        }
-        if (amb == true)
-        {
-            ui->personsSaved->setText("Persons Saved " + QString::number(poiSaved));
-            for (int i=0; i<3; i++) 
-            {
-                if ((poiArray[i].poi == poiArray[poiSlot].poi) &&  poiArray[i].poi != 0) 
-                {  
-                    poiArray[i].location = 100;
-                    lastPoi = i;
-                    poiSaved ++;
-                    ui->personsSaved->setText("Persons Saved = " + QString::number(poiSaved));
-                    break;
-                }
-            }
-            if (poiSaved > 6){std::cout << "WIN!!\n";}
-        }
-        else
-        {
-            poiArray[poiSlot].location = location + offset; 
-            poiArray[poiSlot].state = 1;        
-        }
-    refreshBoard();
+        if (carry == 1 || (poiSlot <20 && hazmatSlot > 80)){carryPoi(slot, poiSlot, offset);}
+        if (carry == 0 || (poiSlot > 14 && hazmatSlot < 100)){carryHazmat(slot, hazmatSlot, offset);}
     } 
+    refreshBoard();
+}
+
+void FireRescue::carryPoi(int slot, int poiSlot, int offset)
+{
+    bool amb = false;
+    ffArray[slot].location += offset;
+    ffMoves -=2;
+    for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}    // flip any poi ran into while carrying a poi
+    
+    for (int i=0; i<8; i++)
+    {
+        if(ffArray[slot].location == ambulance[i]){amb = true;}
+    }
+    if (amb == true)
+    {
+        ui->personsSaved->setText("Persons Saved " + QString::number(poiSaved));
+        for (int i=0; i<3; i++) 
+        {
+            if ((poiArray[i].poi == poiArray[poiSlot].poi) &&  poiArray[i].poi != 0) 
+            {  
+                poiArray[i].location = 100;
+                lastPoi = i;
+                poiSaved ++;
+                ui->personsSaved->setText("Persons Saved = " + QString::number(poiSaved));
+                break;
+            }
+        }
+        if (poiSaved > 6){std::cout << "WIN!!\n";}
+    }
+    else
+    {
+        poiArray[poiSlot].location = ffArray[slot].location; 
+        poiArray[poiSlot].state = 1;        
+    }
+}
+
+
+void FireRescue::carryHazmat(int slot, int hazmatSlot, int offset)
+{
+    int location = ffArray[slot].location += offset;
+    ffMoves -=2;
+    for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}    // flip any poi ran into while carrying a poi
+    if (location < 10 || location > 69 || location % 10 == 0 || (location+1) % 10 == 0)
+    {hazmatArray[hazmatSlot] = 100;}
+    else
+    {hazmatArray[hazmatSlot] = location;}   
 }
 
 
@@ -1128,30 +1151,20 @@ void FireRescue::fireTurn()
 int FireRescue::carryDialog()
 {
     QDialog carryDialog;
-
-    QPushButton carryPoi("Carry Poi", &carryDialog);
-    carryPoi.setGeometry(100, 50, 100, 50); 
-
-    QPushButton carryHazmat("Carry Hazmat", &carryDialog);
-    carryPoi.setGeometry(0, 50, 100, 50); 
-
-    // Variable to store the result (0 or 1)
-    int toCarry = -1; // Initialize it to an invalid value
-
-    // Connect the button's click signals to set the variable toCarry and close the dialog
-    QObject::connect(&carryPoi, &QPushButton::clicked, [&toCarry, &carryDialog]() {
+    carryDialog.setFixedSize(300, 150);             // Set your desired width and height
+    QPushButton carryPoiButton("Carry Poi", &carryDialog);
+    carryPoiButton.setGeometry(100, 25, 100, 50); 
+    QPushButton carryHazmatButton("Carry Hazmat", &carryDialog);
+    carryHazmatButton.setGeometry(100, 75, 100, 50); 
+    int toCarry = -1;                               // Initialize it to an invalid value
+    QObject::connect(&carryHazmatButton, &QPushButton::clicked, [&toCarry, &carryDialog]() {
         toCarry = 0;
-        carryDialog.accept(); // Close the dialog
+        carryDialog.accept();                       // Close the dialog
     });
-
-    QObject::connect(&carryHazmat, &QPushButton::clicked, [&toCarry, &carryDialog]() {
+    QObject::connect(&carryPoiButton, &QPushButton::clicked, [&toCarry, &carryDialog]() {
         toCarry = 1;
-        carryDialog.accept(); // Close the dialog
+        carryDialog.accept();                       // Close the dialog
     });
-
-    // Show the dialog
-    carryDialog.exec(); // Blocks until the dialog is closed
-
-    // Now, the variable "toCarry" contains the selected value (0 or 1)
+    carryDialog.exec();                             // Blocks until the dialog is closed
     return toCarry;
 }

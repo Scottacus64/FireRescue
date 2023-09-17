@@ -46,6 +46,8 @@ public:
     void makePoiLabel(int slot, int multPoi);
     void ffDialog();
     int  carryDialog();
+    void carryPoi(int slot, int poiSlot, int offset);
+    void carryHazmat(int slot, int hazmatSlot, int offset);
 
 private:
     Ui::FireRescue *ui;
@@ -70,8 +72,8 @@ private:
     QLabel *hazmatLabel[4];
     QLabel *hotSpotLabel[12];
 
-    QPushButton carryPoi;
-    QPushButton *carryHazmat;
+    QPushButton *carryPoiButton;
+    QPushButton *carryHazmatButton;
 
     std::vector<MapCell*> adjacentCells(int location);
     std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
