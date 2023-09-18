@@ -96,10 +96,10 @@ public:
             for (int col=0; col<10; col++)
             {
                 int x = (row*10)+col;
-                centerDisk[x] = new QLabel(FireRescue); 
+                /*centerDisk[x] = new QLabel(FireRescue); 
                 centerDisk[x]->setObjectName("centerDisk"+QString::number(x));
                 centerDisk[x]->setPixmap(QPixmap());
-                centerDisk[x]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));
+                centerDisk[x]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));*/
 
                 leftUpperDisk[x] = new QLabel(FireRescue); 
                 leftUpperDisk[x]->setObjectName("leftUpperDisk"+QString::number(x));
@@ -205,7 +205,7 @@ public:
             }
         }
 
-        /*********************** set up the HotSpot markers ********************/
+        /*********************** set up the Damage markers ********************/
         int slot = 0;
         int k = 0;
         for (int i=0; i<4; i++)
@@ -231,7 +231,6 @@ public:
         D8->setPixmap(b1); 
         D8->setGeometry(QRect(110, 30, 60, 60));
 
-       
         utility = new QPushButton(FireRescue);
         utility->setObjectName("utility");
         utility->setGeometry(QRect(50, 775, 100, 50));
@@ -336,8 +335,6 @@ public:
     {
         FireRescue->setWindowTitle(QCoreApplication::translate("FireRescue", "FireRescue", nullptr));
     } // retranslateUi
-    
-
 };
 
 namespace Ui {

@@ -84,6 +84,7 @@ private:
     bool doorOn = false;
     bool smokeOn = false;
     bool flareUp = false;
+    bool flareUpOn = false;
 
     int* m_MapArray;
     int* m_WallArray;

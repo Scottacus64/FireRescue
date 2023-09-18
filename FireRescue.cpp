@@ -577,7 +577,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     else {offset = 10;}
     MapCell* dCell = m_theBoard.GetCell(location+offset); 
     if (poiHazmat == 2) {carry = carryDialog();}                // open the dialog to choose hazmat 0 or poi 1  
-    std::cout << "Carry = " << carry << "\n";      
+    //std::cout << "Carry = " << carry << "\n";      
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && (poiSlot < 20 || hazmatSlot < 100))
     {
         if (carry == 1 || (poiSlot <20 && hazmatSlot > 80)){carryPoi(slot, poiSlot, offset);}
@@ -782,6 +782,7 @@ void FireRescue::refreshBoard()
     ui->tableWidget->raise();
 }
 
+
 void FireRescue::makePoiLabel(int slot, int multPoi)
 {
     int row = poiArray[slot].location / 10;
@@ -798,36 +799,83 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 }
 
 
+void FireRescue::fireTurn()
+{
+    for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
+    rollDice(11);
+    int location = ((value6)*10)+(value8);
+    placeSmoke(location);
+    refreshBoard();
+    delayTimer(500);
+    /************ replace missing poi *************/
+    bool newPoi = false;
+    for (int i=0; i<3; i++)
+    {
+        if (poiArray[i].location > 80)
+        {
+            location = newPoiLocation();
+            int poi = poiList.back();
+            bool match = false;
+            poiList.pop_back();
+            poiArray[i].poi = poi;
+            poiArray[i].location = location;
+            // check to see if a poi was dropped on a ff
+            for (int i=0; i<ffNumber; i++){if (location == ffArray[i].location){match = true;}}
+            if (match == true){poiArray[i].state = 1;}
+            else {poiArray[i].state = 0;}
+            sortPoi();
+            refreshBoard();
+        }
+    } 
+    delayTimer(500);
+
+    if (flareUpOn == true)
+        {flareUpOn = false;}
+    else 
+        {nextPlayer();}
+}
+
+
 void FireRescue::placeSmoke(int location)
 {
-    bool flareUpOn = false;
-    std::cout << "Smoke Location = " << location << "\n";
     MapCell* cell = m_theBoard.GetCell(location);
+    flareUpOn = false;
     for (int i=0; i<12; i++)
     {
         if (location == hotSpotArray[i])
         {
             flareUpCheck(location);
             flareUpOn = true;
-            std::cout << "Hot Spot Hit at " << location << "\n";
+            std::cout << "Hot Spot Hit at " << location <<  " i = " << i <<"\n";
             for (int j=0; j<12; j++){std::cout << hotSpotArray[j] << " ";}
             std::cout << "\n";
+            break;
         }
     }
     cell->setSmoke(true);
+    if (flareUp == true && flareUpOn == false)
+        {placeHotSpot(location);}
+
     if (cell->getFire() == false) 
-    {
-        checkSmokeFire(location);
-    }
+        {checkSmokeFire(location);}
     else if (cell->getSmoke() == true && cell->getFire() == false)
-    {
-        placeFire(location);
-    }
+        {placeFire(location);}
     else
-    {
-        explosion(location);
-    }
+        {explosion(location);}
+
     if (flareUpOn == true){fireTurn();}
+}
+
+
+void FireRescue::flareUpCheck(int location)
+{
+    std::cout << "flareUp = " << flareUp << "\n";
+    if (flareUp == false)
+    {
+        ui->information->setText("Flare Up!");
+    }
+    flareUp = true;
+    
 }
 
 
@@ -944,17 +992,6 @@ void FireRescue::placeHotSpot(int location)
         }
     }
     refreshBoard();
-}
-
-
-void FireRescue::flareUpCheck(int location)
-{
-    if (flareUp == false)
-    {
-        placeHotSpot(location);
-    }
-    flareUp = true;
-    std::cout << "flareUp = " << flareUp << "\n";
 }
 
 
@@ -1117,36 +1154,6 @@ int FireRescue::getOthersideOfWall(int direction, int location)
     return otherSideOfDoor;
 }
 
-void FireRescue::fireTurn()
-{
-    for (int i=0; i<80; i++){checkSmokeFire(i);}
-    rollDice(11);
-    int location = ((value6)*10)+(value8);
-    placeSmoke(location);
-    refreshBoard();
-    delayTimer(500);
-    bool newPoi = false;
-    for (int i=0; i<3; i++)
-    {
-        if (poiArray[i].location > 80)
-        {
-            location = newPoiLocation();
-            int poi = poiList.back();
-            bool match = false;
-            poiList.pop_back();
-            poiArray[i].poi = poi;
-            poiArray[i].location = location;
-            // check to see if a poi was dropped on a ff
-            for (int i=0; i<ffNumber; i++){if (location == ffArray[i].location){match = true;}}
-            if (match == true){poiArray[i].state = 1;}
-            else {poiArray[i].state = 0;}
-            sortPoi();
-            refreshBoard();
-        }
-    } 
-    delayTimer(500);
-    nextPlayer();
-}
 
 int FireRescue::carryDialog()
 {
