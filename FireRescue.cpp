@@ -63,8 +63,8 @@ FireRescue::FireRescue(QWidget *parent)
     D8[7] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b7.png");
     D8[8] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b8.png");
 
-    greySquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
-    blackSquare.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
+    greyCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
+    blackCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
 
     Board m_theBoard = Board();
     m_MapArray = MapCell::getMapArray();
@@ -103,6 +103,8 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
     MapCell* cell = m_theBoard.GetCell(gridLocation); 
     bool onFire = cell->getFire();
     /************* initial FF placement ****************/
+    // these gird locations are around the building
+    //ffBlock will only be true if the number of fireFighters has not been selected yet
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
         ffArray[ffStart].location = gridLocation;
@@ -119,22 +121,8 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
             activeFF = ffNumber;
             nextPlayer();
         }
-        
-    }
-    refreshBoard();
-}
-
-
-void FireRescue::nextPlayer()
-{
-    ffArray[activeFF].moves = ffMoves;
-    activeFF ++;
-    if (activeFF+1 > ffNumber) {activeFF = 0;}
-    ffMoves = ffArray[activeFF].moves + 5;
-    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
-    ui->ffUpIcon->setPixmap(ff[activeFF]);
-    ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
-    flareUp = false;
+       refreshBoard(); 
+    } 
 }
 
 
@@ -363,6 +351,7 @@ void FireRescue::rollDice(int slot)
 void FireRescue::on_utility_clicked()
 {
     static bool doubleCheck;
+    std::cout << "Double Check = " << doubleCheck;
     if (gameState == 0)
     {
         ffDialog();
@@ -507,7 +496,6 @@ void FireRescue::moveFF(int location, int direction)
         refreshBoard();
     }  
 }
-
 
 
 void FireRescue::spray(int location, int direction)
@@ -749,8 +737,7 @@ void FireRescue::refreshBoard()
         hotSpotLabel[i]->show();
         labels.push_back(hotSpotLabel[i]);
     } 
-    
-
+    /************** doors **************/
     int doorNum;
     for (int i=0; i<178; i++)
     {
@@ -775,8 +762,8 @@ void FireRescue::refreshBoard()
         }
         if (m_WallArray[i] > 0)
         {
-            if (m_MapArray[i]== 1){ui->cube[m_WallArray[i]-1]->setPixmap(greySquare);}
-            if (m_MapArray[i]== 0){ui->cube[m_WallArray[i]-1]->setPixmap(blackSquare);}
+            if (m_MapArray[i]== 1){ui->cube[m_WallArray[i]-1]->setPixmap(greyCube);}
+            if (m_MapArray[i]== 0){ui->cube[m_WallArray[i]-1]->setPixmap(blackCube);}
         }
     }
     ui->tableWidget->raise();
@@ -801,9 +788,11 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 
 void FireRescue::fireTurn()
 {
+    std::cout << "\n fire turn \n";
     for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
     rollDice(11);
     int location = ((value6)*10)+(value8);
+    smokeRecursion ++;
     placeSmoke(location);
     refreshBoard();
     delayTimer(500);
@@ -828,21 +817,22 @@ void FireRescue::fireTurn()
         }
     } 
     delayTimer(500);
-
-    if (flareUpOn == true)
-        {flareUpOn = false;}
-    else 
-        {nextPlayer();}
+    smokeRecursion --;
+    if (smokeRecursion == 0)
+        {
+            std::cout<< "\n fire turn next player \n";
+            nextPlayer();
+        }
 }
 
 
 void FireRescue::placeSmoke(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
-    flareUpOn = false;
-    for (int i=0; i<12; i++)
+    flareUpOn = false;      //flag to let us know if a flare up has occured
+    for (int i=0; i<12; i++)  //check the 12 hot spot locations first  
     {
-        if (location == hotSpotArray[i])
+        if (location == hotSpotArray[i])  // if one of the twelve hot spots just had smoke placed on it
         {
             flareUpCheck(location);
             flareUpOn = true;
@@ -863,14 +853,28 @@ void FireRescue::placeSmoke(int location)
     else
         {explosion(location);}
 
-    if (flareUpOn == true){fireTurn();}
+    if (flareUpOn == true){fireTurn();flareUpOn = false;}
+}
+
+
+void FireRescue::nextPlayer()
+{
+    ffArray[activeFF].moves = ffMoves;
+    activeFF ++;
+    if (activeFF+1 > ffNumber) {activeFF = 0;}
+    ffMoves = ffArray[activeFF].moves + 5;
+    std::cout << "\n FF " << activeFF << " moves " << ffMoves << "\n";
+    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
+    ui->ffUpIcon->setPixmap(ff[activeFF]);
+    ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
+    flareUp = false;
 }
 
 
 void FireRescue::flareUpCheck(int location)
 {
     std::cout << "flareUp = " << flareUp << "\n";
-    if (flareUp == false)
+    if (flareUp == false)       //set to false on a new player so this limits to one flare up per smoke placement
     {
         ui->information->setText("Flare Up!");
     }

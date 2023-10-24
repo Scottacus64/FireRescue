@@ -61,8 +61,8 @@ private:
     QPixmap poi[12];
     QPixmap poiBlank;
     QPixmap ff[6];
-    QPixmap greySquare;
-    QPixmap blackSquare;
+    QPixmap greyCube;
+    QPixmap blackCube;
     QPixmap D6[7];
     QPixmap D8[9];
 
@@ -76,7 +76,7 @@ private:
     QPushButton *carryHazmatButton;
 
     std::vector<MapCell*> adjacentCells(int location);
-    std::vector<int> poiList;                                   // list of all POI's to be shuffled at start of game
+    std::vector<int> poiList;   // list of all POI's to be shuffled at start of game
 
     bool ffBlock = true;        // blocker to keep rb's inactive while setting the number of ff
     bool setUpGameOn;
@@ -107,6 +107,7 @@ private:
     int  poiLost = 0;
     int  lastPoi;
     int  ambulance[8]= {5,6,30,40,39,49,73,74};
+    int  smokeRecursion = 0;
 
     struct ffStruct {int ff; int location; int moves;};
     ffStruct ffArray[6];

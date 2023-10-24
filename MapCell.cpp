@@ -102,7 +102,6 @@ void MapCell::printBoard()
 }
 
 
-
 int* MapCell::getMapArray() 
 {
     return m_theMap;
