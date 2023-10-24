@@ -104,7 +104,7 @@ void FireRescue::on_tableWidget_cellClicked(int row, int col)
     bool onFire = cell->getFire();
     /************* initial FF placement ****************/
     // these gird locations are around the building
-    //ffBlock will only be true if the number of fireFighters has not been selected yet
+    // ffBlock will only be true if the number of fireFighters has not been selected yet
     if ((gridLocation<11 || gridLocation>68 || gridLocation%10 == 0 || (gridLocation+1)%10 == 0) && ffBlock == true && onFire == false && setUpGameOn == false)
     {    
         ffArray[ffStart].location = gridLocation;
@@ -255,7 +255,7 @@ int FireRescue::newPoiLocation()
     bool onFire = true;
     bool poiHere = false;
     int location;
-    
+    // this checks to see that a POI is not placed on a square that is on fire or already has a POI
     while (onFire == true || poiHere == true)
     {
         onFire = checkNewSpot(6);
@@ -301,14 +301,10 @@ void FireRescue::placeFF()
 void FireRescue::ffDialog() 
 {
     FfDialog *ffDialog = new FfDialog(this);
-
-    // Show the dialog modally
     int result = ffDialog->exec();
-    //std::cout << "Result is " << result << "\n";
     if (ffDialog->selectedButtonIndex != -1) 
     {
     ffNumber = ffDialog->selectedButtonIndex + 1;
-    //std::cout << "SELECTED = " << ffNumber << "\n";
     }
 }
 
@@ -325,6 +321,7 @@ void FireRescue::delayTimer(int delay)
 }
 
 
+//this checks if a spot is already on fire and returns that result
 bool FireRescue::checkNewSpot(int slot)
 {
     rollDice(slot);
@@ -347,11 +344,10 @@ void FireRescue::rollDice(int slot)
     }
 }
 
-
+//This is for clicking on the "Utility Button" which is a multi-function button
 void FireRescue::on_utility_clicked()
 {
-    static bool doubleCheck;
-    std::cout << "Double Check = " << doubleCheck;
+    static bool doubleCheck;  //variable to double check that the player really wants to end his turn
     if (gameState == 0)
     {
         ffDialog();
@@ -359,7 +355,7 @@ void FireRescue::on_utility_clicked()
     }
     else if (gameState == 1)
     {
-        if (ffBlock == false) 
+        if (ffBlock == false) //only true if placing FF to start game
         {
             if (ffMoves > 4)
             {
@@ -372,60 +368,41 @@ void FireRescue::on_utility_clicked()
     }
 }
 
-
+// rb is "Radio Button"
 void FireRescue::on_rbMove_clicked()
-{
-    if (ffBlock == false) {action = 0;}
-}
+{if (ffBlock == false) {action = 0;}}
 
 
 void FireRescue::on_rbSpray_clicked()
-{
-
-    if (ffBlock == false) {action = 1;}
-}
+{if (ffBlock == false) {action = 1;}}
 
 
 void FireRescue::on_rbChop_clicked()
-{
-    if (ffBlock == false) {action = 2;}
-}
+{if (ffBlock == false) {action = 2;}}
 
 
 void FireRescue::on_rbCarry_clicked()
-{
-    if (ffBlock == false) {action = 3;}
-}
+{if (ffBlock == false) {action = 3;}}
 
 
 void FireRescue::on_rbOpen_clicked()
-{
-    if (ffBlock == false) {action = 4;}
-}
+{if (ffBlock == false) {action = 4;}}
 
 
 void FireRescue::on_rbClose_clicked()
-{
-   if (ffBlock == false) {action = 5;}
-}
+{if (ffBlock == false) {action = 5;}}
 
 
 void FireRescue::on_arrowU_clicked()
-{
-    if (ffBlock == false) {universalAction(0); }
-}
+{if (ffBlock == false) {universalAction(0); }}
 
 
 void FireRescue::on_arrowD_clicked()
-{
-    if (ffBlock == false){universalAction(3);}
-}
+{ if (ffBlock == false){universalAction(3);}}
 
 
 void FireRescue::on_arrowL_clicked()
-{
-    if (ffBlock == false){universalAction(1); }
-}
+{if (ffBlock == false){universalAction(1); }}
 
 
 void FireRescue::on_arrowR_clicked()
@@ -444,27 +421,27 @@ void FireRescue::universalAction(int direction)
     else {takeAction = (ffArray[activeFF].location+10)<80;}
     if (takeAction == true)
     {
-        if (action==0)
+        if (action==0)  //move action
         {
             moveFF(ffArray[activeFF].location, direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
-        else if (action==1)
+        else if (action==1) //spray action
         {
             spray(ffArray[activeFF].location,direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
-        else if (action==2)
+        else if (action==2) //chop action
         {
             chop(ffArray[activeFF].location,direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
-        else if (action==3 && ffMoves >1)
+        else if (action==3 && ffMoves >1)   //carry action
         {
             carry(activeFF, ffArray[activeFF].location, 0, direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
         }
-        else if (action==4 || action==5) 
+        else if (action==4 || action==5)    //cycle door action
         {
             cycleDoor(ffArray[activeFF].location,direction);
             ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
@@ -547,8 +524,8 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     int base = baseValue(location);
     int barrier = m_MapArray[base + baseOffset[direction]];
     int offset;
-    int poiSlot = 20;
-    int hazmatSlot = 100;
+    int poiSlot = 20;       //placeholder 20 = empty, 0 = blank POI, 1-13 = POIs
+    int hazmatSlot = 100;   //placeholder 100 = empty, 0-3 = hazmats
     int poiHazmat = 0;
     int carry = -1;
     for (int i=0; i<3; i++)
@@ -564,13 +541,19 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     else if (direction==2){offset = 1;}
     else {offset = 10;}
     MapCell* dCell = m_theBoard.GetCell(location+offset); 
-    if (poiHazmat == 2) {carry = carryDialog();}                // open the dialog to choose hazmat 0 or poi 1  
-    //std::cout << "Carry = " << carry << "\n";      
+    if (poiHazmat == 2) {carry = carryDialog();}                // open the dialog to choose hazmat 0 or poi 1 
+    // POI's cannot be carried into smoke   
     if ((barrier==0 || barrier==3) && dCell->getFire()==false && dCell->getSmoke()==false && ffMoves>1 && (poiSlot < 20 || hazmatSlot < 100))
     {
-        if (carry == 1 || (poiSlot <20 && hazmatSlot > 80)){carryPoi(slot, poiSlot, offset);}
-        if (carry == 0 || (poiSlot > 14 && hazmatSlot < 100)){carryHazmat(slot, hazmatSlot, offset);}
+        // poiSlot < 20 are valid POI's hazmatSlot > 80 are invalid hazmats
+        if (carry == 1 || (poiSlot <20 && hazmatSlot > 80)){carryPoi(slot, poiSlot, offset);}  
     } 
+    // hazmats can be carried into smoke
+    if ((barrier==0 || barrier==3) && dCell->getFire()==false && ffMoves>1 && (poiSlot < 20 || hazmatSlot < 100))
+    {
+        // poiSlot > 14 are invalid POI's, hazmatSlot < 100 are valid hazmats
+        if (carry == 0 || (poiSlot > 14 && hazmatSlot < 100)){carryHazmat(slot, hazmatSlot, offset);}
+    }    
     refreshBoard();
 }
 
@@ -792,7 +775,7 @@ void FireRescue::fireTurn()
     for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
     rollDice(11);
     int location = ((value6)*10)+(value8);
-    smokeRecursion ++;
+    smokeRecursion ++;  //smoke recussion keeps track of the number of recursions of fireTurn
     placeSmoke(location);
     refreshBoard();
     delayTimer(500);
@@ -817,8 +800,8 @@ void FireRescue::fireTurn()
         }
     } 
     delayTimer(500);
-    smokeRecursion --;
-    if (smokeRecursion == 0)
+    smokeRecursion --;          //decrement smokeRecurrsion as a counter of recursions left to go
+    if (smokeRecursion == 0)    //when all recursions of fireTurn have ended then it's the players turn
         {
             std::cout<< "\n fire turn next player \n";
             nextPlayer();
@@ -829,29 +812,29 @@ void FireRescue::fireTurn()
 void FireRescue::placeSmoke(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
-    flareUpOn = false;      //flag to let us know if a flare up has occured
-    for (int i=0; i<12; i++)  //check the 12 hot spot locations first  
+    flareUpOn = false;          //flag to let us know if a flare up has occured
+    for (int i=0; i<12; i++)    //check the 12 hot spot locations first  
     {
         if (location == hotSpotArray[i])  // if one of the twelve hot spots just had smoke placed on it
         {
             flareUpCheck(location);
-            flareUpOn = true;
+            flareUpOn = true;   //this gives fire another turn
             std::cout << "Hot Spot Hit at " << location <<  " i = " << i <<"\n";
             for (int j=0; j<12; j++){std::cout << hotSpotArray[j] << " ";}
             std::cout << "\n";
             break;
         }
     }
-    cell->setSmoke(true);
-    if (flareUp == true && flareUpOn == false)
-        {placeHotSpot(location);}
-
-    if (cell->getFire() == false) 
-        {checkSmokeFire(location);}
-    else if (cell->getSmoke() == true && cell->getFire() == false)
+    
+    if (flareUp == true && flareUpOn == false)  //flareUpOn will be false on the last of the fire advances
+        {placeHotSpot(location);}\
+    checkSmokeFire(location);        // make sure all smoke cells next to fire with no barrier are lit
+    if (cell->getSmoke() == true)
         {placeFire(location);}
-    else
+    else if (cell->getFire() == true)
         {explosion(location);}
+    else
+        {cell->setSmoke(true);}
 
     if (flareUpOn == true){fireTurn();flareUpOn = false;}
 }
@@ -873,17 +856,16 @@ void FireRescue::nextPlayer()
 
 void FireRescue::flareUpCheck(int location)
 {
-    std::cout << "flareUp = " << flareUp << "\n";
     if (flareUp == false)       //set to false on a new player so this limits to one flare up per smoke placement
     {
         ui->information->setText("Flare Up!");
+        flareUp = true; 
     }
-    flareUp = true;
-    
 }
 
 
-void FireRescue::checkSmokeFire(int location)
+// this check if smoke is next to fire with no barrier between them, if so, light smoke on fire
+void FireRescue::checkSmokeFire(int location) // in game called "Flashover"
 {
     MapCell* cell = m_theBoard.GetCell(location);
     if (cell->getSmoke()==true)
@@ -1025,16 +1007,15 @@ void FireRescue::cycleDoor(int location, int direction)
 void FireRescue::checkBreach(int location)
 {
     MapCell* cell = m_theBoard.GetCell(location);
-    std::vector<MapCell*> nearCells = adjacentCells(location);      //  populate the vector with the surrounding cells
+    std::vector<MapCell*> nearCells = adjacentCells(location);  // populate the vector with the surrounding cells
         bool setFire = false;
-        //cell->printBoard();
-        for (int i=0; i<4; i++)                                     // step through each cell
+        for (int i=0; i<4; i++)                                 // step through each cell
         {
             if (nearCells[i] != nullptr)
             {
                 int base = baseValue(location);
                 int barrier = m_MapArray[base + baseOffset[i]];     // get the current cell's wall/door value in this direction
-                if (barrier < 4) {barrier = 0;}                    // if there is a door and it is open then set barrier to 0
+                if (barrier < 4) {barrier = 0;}                     // if there is a door and it is open then set barrier to 0
                 if (nearCells[i]->getFire() == true && barrier == 0 && cell->getSmoke() == true)
                 {
                     setFire = true;                                 //recursive call to place fire
@@ -1049,6 +1030,10 @@ void FireRescue::explosion(int location)
     MapCell* cell = m_theBoard.GetCell(location);
     placeFire(location);
     delayTimer(50);
+    /*  uncertain on the rules here, at the start of an advanced game explosions cause hot spots 
+        but then the rule book says nothing about placing hot spots for explosions that occur
+        during game play.  The only hot spots that the rulse refer to are for the last advance
+        fire roll during a flare up causes a hot spot to occur there.                               */
     placeHotSpot(location);
     delayTimer(50);
     std::vector<MapCell*> nearCells = adjacentCells(location); 
@@ -1095,9 +1080,7 @@ void FireRescue::shockWave(int direction, int location)
     {
         damageWall(direction, location, base);
     }
-
     barrier = m_MapArray[base + baseOffset[direction]]; 
-
     if (barrier < 9)
     {
         if (nearCells[direction]->getFire() == true && barrier == 0 )
@@ -1109,7 +1092,6 @@ void FireRescue::shockWave(int direction, int location)
             placeFire(nearCells[direction]->getID());
         }               
     } 
-
     if (barrier > 2 && barrier < 9)                      // if there is a door blow it off its hinges
     {
         barrier = 0;
@@ -1128,6 +1110,7 @@ void FireRescue::damageWall(int direction, int location, int base)
 }
 
 
+// this returns an array of cell locations in all directions around a given cell
 std::vector<MapCell*> FireRescue::adjacentCells(int location)
 {
     std::vector<MapCell*> nextCells(4, nullptr);
@@ -1139,6 +1122,7 @@ std::vector<MapCell*> FireRescue::adjacentCells(int location)
 }
 
 
+// this translates location values into row and column values
 int FireRescue::baseValue(int location)
 {
     int row = location / 10;
@@ -1148,6 +1132,7 @@ int FireRescue::baseValue(int location)
 }
 
 
+// this returns the square location around a given square in any direction
 int FireRescue::getOthersideOfWall(int direction, int location)
 {
     int otherSideOfDoor;
