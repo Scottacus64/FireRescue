@@ -74,7 +74,7 @@ FireRescue::FireRescue(QWidget *parent)
     {
         poiList.push_back(i);
     }
-    for (int i=0; i<5; i++) {poiList.push_back(1);}         // 0 is a blank POI chip
+    for (int i=0; i<5; i++) {poiList.push_back(0);}         // 0 is a blank POI chip
     // Shuffle the vector
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -562,8 +562,7 @@ void FireRescue::carryPoi(int slot, int poiSlot, int offset)
     bool amb = false;
     ffArray[slot].location += offset;
     ffMoves -=2;
-    for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}    // flip any poi ran into while carrying a poi
-    
+    for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}    // flip any poi ran into while carrying a poi   
     for (int i=0; i<8; i++)
     {
         if(ffArray[slot].location == ambulance[i]){amb = true;}
@@ -576,13 +575,12 @@ void FireRescue::carryPoi(int slot, int poiSlot, int offset)
             if ((poiArray[i].poi == poiArray[poiSlot].poi) &&  poiArray[i].poi != 0) 
             {  
                 poiArray[i].location = 100;
-                lastPoi = i;
                 poiSaved ++;
                 ui->personsSaved->setText("Persons Saved = " + QString::number(poiSaved));
                 break;
             }
         }
-        if (poiSaved > 6){std::cout << "WIN!!\n";}
+        if (poiSaved > 6){ui->utility->setText("WIN!!!");;}
     }
     else
     {
@@ -672,27 +670,27 @@ void FireRescue::refreshBoard()
     {
         for (int j=i+1; j<3; j++)
         {
-            if (poiArray[i].location == poiArray[j].location){multPoi++;}
+            if (poiArray[i].location == poiArray[j].location){multPoi++;} //check if poi's are on the same cell
         }
     }
     if (multPoi>2){multPoi = 2;}
     for (int i=0; i<3; i++)
     {
-        if (poiArray[i].location < 80)
+        if (poiArray[i].location < 80)  // 100 is no POI
         {
-            if (poiArray[i].state == 0)
+            if (poiArray[i].state == 0) // single poi
             {
                 makePoiLabel(i, 0);
             }
             else
             {
-                if (multPoi > 0)
+                if (multPoi > 0)        // if stacked poi's
                 {
                     makePoiLabel(i, multPoi);
                     multPoi --;
                 }
                 else
-                {makePoiLabel(i,0);}
+                {makePoiLabel(i, 0);}    // last poi in stack to be printed to screen
             }
         }
     }
@@ -763,7 +761,6 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
     {poiExtra[slot]->setPixmap(poi[11]);}
     else
     {poiExtra[slot]->setPixmap(poi[poiArray[slot].poi]);}
-
     poiExtra[slot]->show();
     labels.push_back(poiExtra[slot]);
 }
@@ -771,6 +768,15 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 
 void FireRescue::fireTurn()
 {
+    for (int i=0; i<3; i++)
+    {
+        if (poiArray[i].state == 1 && poiArray[i].poi == 0){poiArray[i].location = 100;}
+    }
+    /************ replace missing poi *************/
+    for (int i=0; i<3; i++)
+    {
+        if (poiArray[i].location > 80) {placeNewPoi(i);}
+    } 
     std::cout << "\n fire turn \n";
     for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
     rollDice(11);
@@ -780,24 +786,9 @@ void FireRescue::fireTurn()
     refreshBoard();
     delayTimer(500);
     /************ replace missing poi *************/
-    bool newPoi = false;
     for (int i=0; i<3; i++)
     {
-        if (poiArray[i].location > 80)
-        {
-            location = newPoiLocation();
-            int poi = poiList.back();
-            bool match = false;
-            poiList.pop_back();
-            poiArray[i].poi = poi;
-            poiArray[i].location = location;
-            // check to see if a poi was dropped on a ff
-            for (int i=0; i<ffNumber; i++){if (location == ffArray[i].location){match = true;}}
-            if (match == true){poiArray[i].state = 1;}
-            else {poiArray[i].state = 0;}
-            sortPoi();
-            refreshBoard();
-        }
+        if (poiArray[i].location > 80) {placeNewPoi(i);}
     } 
     delayTimer(500);
     smokeRecursion --;          //decrement smokeRecurrsion as a counter of recursions left to go
@@ -806,6 +797,23 @@ void FireRescue::fireTurn()
             std::cout<< "\n fire turn next player \n";
             nextPlayer();
         }
+}
+
+
+void FireRescue::placeNewPoi(int slot)
+{
+    int location = newPoiLocation();
+    int poi = poiList.back();
+    bool match = false;
+    poiList.pop_back();
+    poiArray[slot].poi = poi;
+    poiArray[slot].location = location;
+    // check to see if a poi was dropped on a ff
+    for (int i=0; i<ffNumber; i++){if (location == ffArray[slot].location){match = true;}}
+    if (match == true){poiArray[slot].state = 1;}
+    else {poiArray[slot].state = 0;}
+    sortPoi();
+    refreshBoard();
 }
 
 
@@ -825,17 +833,15 @@ void FireRescue::placeSmoke(int location)
             break;
         }
     }
-    
-    if (flareUp == true && flareUpOn == false)  //flareUpOn will be false on the last of the fire advances
-        {placeHotSpot(location);}\
-    checkSmokeFire(location);        // make sure all smoke cells next to fire with no barrier are lit
-    if (cell->getSmoke() == true)
+    if (cell->getSmoke() == true)       // if the cell has smoke, light it on fire
         {placeFire(location);}
-    else if (cell->getFire() == true)
+    else if (cell->getFire() == true)   // if the cell has fire then explosion
         {explosion(location);}
-    else
+    else                                // if neither smoke or fire then place smoke on the cell
         {cell->setSmoke(true);}
-
+    checkSmokeFire(location);           // make sure all smoke cells next to fire with no barrier are lit
+    if (flareUp == true && flareUpOn == false)  //flareUpOn will be false on the last of the fire advances
+    {placeHotSpot(location);}
     if (flareUpOn == true){fireTurn();flareUpOn = false;}
 }
 
@@ -905,10 +911,9 @@ void FireRescue::placeFire(int location)
                 {
                     poiLost++;
                     ui->personsLost->setText("Persons lost = " + QString::number(poiLost));
-                    if (poiLost > 3){std::cout << "Game Lost\n";}
+                    if (poiLost > 3){ui->utility->setText("Loss :(");;}
                 }
                 poiArray[i].location = 100;
-                lastPoi = i;
             }
         }
         /******** check for hazmats to cause an explosion ********/

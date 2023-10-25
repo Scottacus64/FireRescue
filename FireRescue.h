@@ -48,6 +48,7 @@ public:
     int  carryDialog();
     void carryPoi(int slot, int poiSlot, int offset);
     void carryHazmat(int slot, int hazmatSlot, int offset);
+    void placeNewPoi(int slot);
 
 private:
     Ui::FireRescue *ui;
