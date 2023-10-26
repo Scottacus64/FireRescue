@@ -330,6 +330,7 @@ void FireRescue::on_utility_clicked()
     static bool doubleCheck;  //variable to double check that the player really wants to end his turn
     if (gameState == 0)
     {
+        resetGame();
         ffDialog();
         setUpGame();
     }
@@ -504,7 +505,6 @@ void FireRescue::chop(int location, int direction)
         ffMoves--;
         damageWall(direction, location, base);
     }
-    resetGame();
     refreshBoard();
 }
 
@@ -571,7 +571,13 @@ void FireRescue::carryPoi(int slot, int poiSlot, int offset)
             }
         }
         textUpdate();
-        if (poiSaved > 6){ui->label->setText("WIN!!!");ui->utility->setText("WIN!!!");gameOver();}
+        if (poiSaved > 0)
+        {
+            ui->label->setVisible(true);
+            ui->label->setText("WIN!!!");
+            ui->information->setText("Nice job you saved seven people!");
+            gameOver();
+        }
     }
     else
     {
@@ -889,7 +895,13 @@ void FireRescue::placeFire(int location)
                 if (poiArray[i].poi != 0)
                 {
                     poiLost++;
-                    if (poiLost > 3){ui->label->setText("Loss");ui->utility->setText("Loss :(");gameOver();}
+                    if (poiLost > 0)
+                    {
+                        ui->label->setVisible(true);
+                        ui->label->setText("Loss");
+                        ui->information->setText("Too many people lost!");
+                        gameOver();
+                    }
                 }
                 poiArray[i].location = 100;
             }
@@ -1088,7 +1100,13 @@ void FireRescue::shockWave(int direction, int location)
 void FireRescue::damageWall(int direction, int location, int base)
 {
     wallDamage ++;
-    if (wallDamage > 21){ui->label->setText("Loss");gameOver();}
+    if (wallDamage > 21)
+    {
+        ui->label->setVisible(true);
+        ui->label->setText("Loss");
+        ui->information->setText("The building collapsed!!");
+        gameOver();
+    }
     textUpdate();
     int barrier = m_MapArray[base + baseOffset[direction]];
     m_MapArray[base + baseOffset[direction]] = barrier - 1;
@@ -1153,7 +1171,9 @@ int FireRescue::carryDialog()
 
 void FireRescue::gameOver()
 {
+    std::cout << "In gameOver";
     gameState = 0;
+    ui->utility->setText("Play Again?");
 }
 
 
@@ -1201,9 +1221,7 @@ void FireRescue::resetGame()
             hotSpotArray[i] = 100;
         }
         refreshBoard();
-        gameState = 0;
         textUpdate();
-        ui->utility->setText("Play Again?");
     }
     if (hotSpots < 12)
     {
