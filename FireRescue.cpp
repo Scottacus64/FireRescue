@@ -191,7 +191,7 @@ void FireRescue::setUpGame()
         }
         if (startUpSequence >6 && startUpSequence <10)          // place POI
         {
-            ui->label->setText("Place 3 Points Of Interest" + QString::number(startUpSequence-6));
+            ui->label->setText("Place 3 Markers" + QString::number(startUpSequence-6));
             location = newPoiLocation();
             poiArray[poiSlot].location = location;
             poiSlot ++;
@@ -561,18 +561,17 @@ void FireRescue::carryPoi(int slot, int poiSlot, int offset)
     }
     if (amb == true)
     {
-        ui->personsSaved->setText("Persons Saved " + QString::number(poiSaved));
         for (int i=0; i<3; i++) 
         {
             if ((poiArray[i].poi == poiArray[poiSlot].poi) &&  poiArray[i].poi != 0) 
             {  
                 poiArray[i].location = 100;
                 poiSaved ++;
-                ui->personsSaved->setText("Persons Saved = " + QString::number(poiSaved));
                 break;
             }
         }
-        if (poiSaved > 6){ui->utility->setText("WIN!!!");;}
+        textUpdate();
+        if (poiSaved > 6){ui->label->setText("WIN!!!");ui->utility->setText("WIN!!!");gameOver();}
     }
     else
     {
@@ -596,18 +595,8 @@ void FireRescue::carryHazmat(int slot, int hazmatSlot, int offset)
 
 void FireRescue::refreshBoard()
 {
-    int lableSlot = 1;
-    std::cout << "\n";
-    for (QLabel* label : labels)  
-    {
-        std::cout << lableSlot << ":" << label << "\t";
-        if (lableSlot > 0 && lableSlot % 4 == 0){std::cout << "\n";}
-        if (label != nullptr) {label->hide();}
-        lableSlot ++;
-    }
-    std::cout << "\n";
+    for (QLabel* label : labels)  {if (label != nullptr) {label->hide();}}
     labels.clear();
-
     int slot = 0;
     int extra = 0;
     /******** show fire fighters ***********/
@@ -762,26 +751,28 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 
 void FireRescue::fireTurn()
 {
-    std::cout << "\n fire turn \n";
-    for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
-    rollDice(11);
-    int location = ((value6)*10)+(value8);
-    smokeRecursion ++;  //smoke recussion keeps track of the number of recursions of fireTurn
-    placeSmoke(location);
-    refreshBoard();
-    delayTimer(500);
-    /************ replace missing poi *************/
-    for (int i=0; i<3; i++)
+    if (gameState > 0)
     {
-        if (poiArray[i].location > 80) {placeNewPoi(i);}
-    } 
-    delayTimer(500);
-    smokeRecursion --;          //decrement smokeRecurrsion as a counter of recursions left to go
-    if (smokeRecursion == 0)    //when all recursions of fireTurn have ended then it's the players turn
+        for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
+        rollDice(11);
+        int location = ((value6)*10)+(value8);
+        smokeRecursion ++;  //smoke recussion keeps track of the number of recursions of fireTurn
+        placeSmoke(location);
+        refreshBoard();
+        delayTimer(500);
+        /************ replace missing poi *************/
+        for (int i=0; i<3; i++)
+        {
+            if (poiArray[i].location > 80) {placeNewPoi(i);}
+        } 
+        delayTimer(500);
+        smokeRecursion --;          //decrement smokeRecurrsion as a counter of recursions left to go
+        if (smokeRecursion == 0)    //when all recursions of fireTurn have ended then it's the players turn
         {
             std::cout<< "\n fire turn next player \n";
             nextPlayer();
         }
+    }
 }
 
 
@@ -833,15 +824,17 @@ void FireRescue::placeSmoke(int location)
 
 void FireRescue::nextPlayer()
 {
-    ffArray[activeFF].moves = ffMoves;
-    activeFF ++;
-    if (activeFF+1 > ffNumber) {activeFF = 0;}
-    ffMoves = ffArray[activeFF].moves + 5;
-    std::cout << "\n FF " << activeFF << " moves " << ffMoves << "\n";
-    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
-    ui->ffUpIcon->setPixmap(ff[activeFF]);
-    ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
-    flareUp = false;
+    if (gameState > 0)
+    {
+        ffArray[activeFF].moves = ffMoves;
+        activeFF ++;
+        if (activeFF+1 > ffNumber) {activeFF = 0;}
+        ffMoves = ffArray[activeFF].moves + 5;
+        ui->ffUpIcon->setPixmap(ff[activeFF]);
+        ui->information->setText("Fire Fighter " + QString::number(activeFF) + " is up!");
+        flareUp = false;
+        textUpdate();
+    }
 }
 
 
@@ -896,8 +889,7 @@ void FireRescue::placeFire(int location)
                 if (poiArray[i].poi != 0)
                 {
                     poiLost++;
-                    ui->personsLost->setText("Persons lost = " + QString::number(poiLost));
-                    if (poiLost > 3){ui->utility->setText("Loss :(");;}
+                    if (poiLost > 3){ui->label->setText("Loss");ui->utility->setText("Loss :(");gameOver();}
                 }
                 poiArray[i].location = 100;
             }
@@ -951,7 +943,8 @@ void FireRescue::placeFire(int location)
             }
         }
     }
-   refreshBoard();  
+    textUpdate();
+    refreshBoard();  
 }
 
 
@@ -1095,8 +1088,8 @@ void FireRescue::shockWave(int direction, int location)
 void FireRescue::damageWall(int direction, int location, int base)
 {
     wallDamage ++;
-    if (wallDamage > 21){std::cout << "GAME OVER\n";}
-    ui->damage->setText("Damage = " + QString::number(wallDamage));
+    if (wallDamage > 21){ui->label->setText("Loss");gameOver();}
+    textUpdate();
     int barrier = m_MapArray[base + baseOffset[direction]];
     m_MapArray[base + baseOffset[direction]] = barrier - 1;
 }
@@ -1160,7 +1153,7 @@ int FireRescue::carryDialog()
 
 void FireRescue::gameOver()
 {
-
+    gameState = 0;
 }
 
 
@@ -1191,6 +1184,12 @@ void FireRescue::resetGame()
         ffArray[i].location = 100;
         ffArray[i].moves = 0;
     }
+    ffBlock = true;
+    ffStart = 0;
+    activeFF = 0;
+    wallDamage = 0;
+    poiSaved = 0;  
+    poiLost = 0;
     if (setUpGameOn == false)
     {
         for (int i=0; i<43; i++) {ui->cube[i]->setPixmap(QPixmap());} 
@@ -1202,15 +1201,26 @@ void FireRescue::resetGame()
             hotSpotArray[i] = 100;
         }
         refreshBoard();
-
+        gameState = 0;
+        textUpdate();
+        ui->utility->setText("Play Again?");
     }
     if (hotSpots < 12)
     {
         for (int i=hotSpots; i<12; i++) {ui->hs[i]->setPixmap(QPixmap(hotSpot));}
     }
+    hotSpots = 12;
     for (const int& element : poiList) 
     {
         std::cout << element << " ";
     }
     setUpGameOn = true;
+}
+
+void FireRescue::textUpdate()
+{
+    ui->damage->setText("Damage = " + QString::number(wallDamage));
+    ui->personsSaved->setText("Persons Saved = " + QString::number(poiSaved));
+    ui->personsLost->setText("Persons lost = " + QString::number(poiLost));
+    ui->ffUp->setText("Fire Fighter Moves = "+ QString::number(ffMoves));
 }

@@ -51,6 +51,7 @@ public:
     void placeNewPoi(int slot);
     void gameOver();
     void resetGame();
+    void textUpdate();
 
 private:
     Ui::FireRescue *ui;
