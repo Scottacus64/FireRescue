@@ -3,7 +3,9 @@
 #include <unordered_map>
 #include <utility> // For std::pair
 
-int MapCell::m_theMap[178] = {           9,9,9,9,9,9,9,9,9,9,
+int MapCell::m_theMap[178];
+
+int MapCell::m_defaultMap[178] = {      9,9,9,9,9,9,9,9,9,9,
                                         9,0,0,0,0,0,0,0,0,0,9,
                                          0,2,2,2,2,2,0,2,2,0,
                                         9,2,0,0,4,0,2,0,0,2,9,
@@ -39,16 +41,14 @@ int MapCell::m_theWalls[178] = {         0,0,0,0,0,0,0,0,0,0,
                                         0,0,0,0,0,0,0,0,0,0,0,  
                                          0,0,0,0,0,0,0,0,0,0     };  
 
-
-
-//int MapCell::m_poiList[16] = {poi[1], poi[2], poi[3], poi[4], poi[5], poi[6], poi[7], poi[8], poi[9], poi[10], poi[0], poi[0], poi[0, poi[0], poi[0]]}  ;                                       
+                                    
 
 MapCell::MapCell()
 {}
 
 
 MapCell::MapCell(int gridLocation)
-    : fire(false), smoke(false), hazmat(false), hotSpot(false), checked(false), id(gridLocation)
+    : fire(false), smoke(false), hazmat(false), hotSpot(false), id(gridLocation)
 {}
 
 
@@ -104,6 +104,7 @@ void MapCell::printBoard()
 
 int* MapCell::getMapArray() 
 {
+    memcpy(m_theMap, m_defaultMap, sizeof(m_theMap));
     return m_theMap;
 }
 

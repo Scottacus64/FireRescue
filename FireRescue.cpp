@@ -65,28 +65,8 @@ FireRescue::FireRescue(QWidget *parent)
 
     greyCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
     blackCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
-
     Board m_theBoard = Board();
-    m_MapArray = MapCell::getMapArray();
-    m_WallArray = MapCell::getWallArray();
-
-    for (int i=1; i<11; i++)  
-    {
-        poiList.push_back(i);
-    }
-    for (int i=0; i<5; i++) {poiList.push_back(0);}         // 0 is a blank POI chip
-    // Shuffle the vector
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::shuffle(poiList.begin(), poiList.end(), rng);
-    setUpGameOn = true;
-
-    for (int i=0; i<6; i++)
-    {
-        ffArray[i].ff = i;
-        ffArray[i].location = 100;
-        ffArray[i].moves = 0;
-    }
+    resetGame();
     ui->setupUi(this);
 }
 
@@ -246,6 +226,7 @@ void FireRescue::setUpGame()
     ui->label->setVisible(false);
     refreshBoard();
     setUpGameOn = false;
+    printMa();
     placeFF();
 }
 
@@ -272,6 +253,7 @@ int FireRescue::newPoiLocation()
     }
     return location;
 }
+
 
 void FireRescue::sortPoi()
 {
@@ -344,6 +326,7 @@ void FireRescue::rollDice(int slot)
     }
 }
 
+
 //This is for clicking on the "Utility Button" which is a multi-function button
 void FireRescue::on_utility_clicked()
 {
@@ -363,10 +346,23 @@ void FireRescue::on_utility_clicked()
                 doubleCheck = !doubleCheck;
             }
             if (ffMoves < 5){doubleCheck = false;}
-            if (doubleCheck == false) {fireTurn();}
+            if (doubleCheck == false) 
+                {
+                    for (int i=0; i<3; i++)
+                    {
+                        if (poiArray[i].state == 1 && poiArray[i].poi == 0){poiArray[i].location = 100;}
+                    }
+                    /************ replace missing poi *************/
+                    for (int i=0; i<3; i++)
+                    {
+                        if (poiArray[i].location > 80) {placeNewPoi(i);}
+                    } 
+                    fireTurn();
+                }
         }
     }
 }
+
 
 // rb is "Radio Button"
 void FireRescue::on_rbMove_clicked()
@@ -508,12 +504,10 @@ void FireRescue::chop(int location, int direction)
     int barrier = m_MapArray[base + baseOffset[direction]]; 
     if (barrier < 3 && barrier > 0 && ffMoves>0) 
     {
-        m_MapArray[base + baseOffset[direction]] = barrier - 1;
         ffMoves--;
-        wallDamage ++;
-        if (wallDamage > 21){std::cout << "GAME OVER" << "\n";}
-        ui->damage->setText("Damage = " + QString::number(wallDamage));
+        damageWall(direction, location, base);
     }
+    resetGame();
     refreshBoard();
 }
 
@@ -556,6 +550,7 @@ void FireRescue::carry(int slot, int location, int obj, int direction)
     }    
     refreshBoard();
 }
+
 
 void FireRescue::carryPoi(int slot, int poiSlot, int offset)
 {
@@ -743,6 +738,7 @@ void FireRescue::refreshBoard()
         }
         if (m_WallArray[i] > 0)
         {
+            if (m_MapArray[i]== 2){ui->cube[m_WallArray[i]-1]->setPixmap(QPixmap());}
             if (m_MapArray[i]== 1){ui->cube[m_WallArray[i]-1]->setPixmap(greyCube);}
             if (m_MapArray[i]== 0){ui->cube[m_WallArray[i]-1]->setPixmap(blackCube);}
         }
@@ -768,15 +764,6 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
 
 void FireRescue::fireTurn()
 {
-    for (int i=0; i<3; i++)
-    {
-        if (poiArray[i].state == 1 && poiArray[i].poi == 0){poiArray[i].location = 100;}
-    }
-    /************ replace missing poi *************/
-    for (int i=0; i<3; i++)
-    {
-        if (poiArray[i].location > 80) {placeNewPoi(i);}
-    } 
     std::cout << "\n fire turn \n";
     for (int i=0; i<80; i++){checkSmokeFire(i);}        // this is to set any smoke next to fire on fire at fire turn
     rollDice(11);
@@ -860,6 +847,7 @@ void FireRescue::nextPlayer()
 }
 
 
+// flareUps are when smoke is rolled on a hot spot fire gets an additional turn
 void FireRescue::flareUpCheck(int location)
 {
     if (flareUp == false)       //set to false on a new player so this limits to one flare up per smoke placement
@@ -1030,6 +1018,7 @@ void FireRescue::checkBreach(int location)
         if (setFire == true) {placeFire(location);}
 }
 
+
 void FireRescue::explosion(int location)
 { 
     MapCell* cell = m_theBoard.GetCell(location);
@@ -1115,7 +1104,7 @@ void FireRescue::damageWall(int direction, int location, int base)
 }
 
 
-// this returns an array of cell locations in all directions around a given cell
+// returns an array of cell locations in all directions around a given cell
 std::vector<MapCell*> FireRescue::adjacentCells(int location)
 {
     std::vector<MapCell*> nextCells(4, nullptr);
@@ -1127,7 +1116,7 @@ std::vector<MapCell*> FireRescue::adjacentCells(int location)
 }
 
 
-// this translates location values into row and column values
+// translates location values into row and column values
 int FireRescue::baseValue(int location)
 {
     int row = location / 10;
@@ -1137,7 +1126,7 @@ int FireRescue::baseValue(int location)
 }
 
 
-// this returns the square location around a given square in any direction
+// returns the square location around a given square in any direction
 int FireRescue::getOthersideOfWall(int direction, int location)
 {
     int otherSideOfDoor;
@@ -1168,4 +1157,62 @@ int FireRescue::carryDialog()
     });
     carryDialog.exec();                             // Blocks until the dialog is closed
     return toCarry;
+}
+
+
+void FireRescue::gameOver()
+{
+
+}
+
+
+void FireRescue::resetGame()
+{
+    m_theBoard.clearBoard();
+    /* the wall array is made up of ascending values for each wall segment and is static the map array is made 
+    up of hit point vales for these wall segments, wall = 2, door = 4 and these are damaged or opened during
+    game play */ 
+    m_WallArray = MapCell::getWallArray();  
+    m_MapArray = MapCell::getMapArray(); 
+    for (int i=0; i<80; i++)
+    {
+        MapCell* cell = m_theBoard.GetCell(i);
+        cell->setFire(false);
+        cell->setSmoke(false);
+    }
+    poiList.clear(); 
+    for (int i=1; i<11; i++) {poiList.push_back(i);}
+    for (int i=0; i<5; i++) {poiList.push_back(0);}         // 0 is a blank POI chip
+    // Shuffle the vector
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::shuffle(poiList.begin(), poiList.end(), rng);
+    for (int i=0; i<6; i++)
+    {
+        ffArray[i].ff = i;
+        ffArray[i].location = 100;
+        ffArray[i].moves = 0;
+    }
+    if (setUpGameOn == false)
+    {
+        for (int i=0; i<43; i++) {ui->cube[i]->setPixmap(QPixmap());} 
+        for (int i=0; i<9; i++) {ui->door[i]->setPixmap(doorClosed);}
+        refreshBoard();
+        printMa();
+    }
+    for (const int& element : poiList) 
+    {
+        std::cout << element << " ";
+    }
+    setUpGameOn = true;
+}
+
+void FireRescue::printMa()
+{
+    for (int i=0; i<178; i++)
+    {
+        std::cout << m_MapArray[i]<< " ";
+        if (i % 21 == 0) {std::cout << "\n";}
+    }
+    std::cout<<"\n";
 }

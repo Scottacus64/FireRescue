@@ -29,6 +29,7 @@ public:
     void printBoard();
 
 private:
+    static int m_defaultMap[178];
     static int m_theMap[178];
     static int m_theWalls[178];
     static int m_poiList[16];

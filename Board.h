@@ -9,6 +9,7 @@ public:
     Board();
     ~Board();
     MapCell* GetCell(int index);
+    void clearBoard();
 private:
 std::vector<MapCell> m_theBoard;
     

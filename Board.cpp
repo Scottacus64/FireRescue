@@ -11,9 +11,9 @@ Board::Board()
      }
 }
 
+
 Board::~Board()
 {}
-
 
 
 MapCell* Board::GetCell(int index) 
@@ -22,5 +22,10 @@ MapCell* Board::GetCell(int index)
    {return &m_theBoard[index];} 
    else 
    {return nullptr;}
+}
+
+void Board::clearBoard()
+{
+   m_theBoard.clear();
 }
 
