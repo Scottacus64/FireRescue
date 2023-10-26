@@ -142,7 +142,7 @@ void FireRescue::setUpGame()
             explosion(location);
             delayTimer(50);
         }
-        if (startUpSequence == 1)                               // explosion 2
+        if (startUpSequence == 1)                            // explosion 2
         {
             ui->label->setText("Place Explosion 2");
             onFire = true;
@@ -150,7 +150,6 @@ void FireRescue::setUpGame()
             {
                 onFire = checkNewSpot(1);
                 location = ((value6)*10)+(value8);
-                //std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             }
             explosion(location);
             delayTimer(50);
@@ -164,7 +163,6 @@ void FireRescue::setUpGame()
             {
                 onFire = checkNewSpot(2);
                 location = ((value6)*10)+(value8);
-                //std::cout << "Fire Detected: " << value6 << "," << value8 << "\n";
             }
             explosion(location);
             delayTimer(50);
@@ -193,7 +191,7 @@ void FireRescue::setUpGame()
         }
         if (startUpSequence >6 && startUpSequence <10)          // place POI
         {
-            ui->label->setText("Place 3 Persons" + QString::number(startUpSequence-6));
+            ui->label->setText("Place 3 Points Of Interest" + QString::number(startUpSequence-6));
             location = newPoiLocation();
             poiArray[poiSlot].location = location;
             poiSlot ++;
@@ -226,7 +224,6 @@ void FireRescue::setUpGame()
     ui->label->setVisible(false);
     refreshBoard();
     setUpGameOn = false;
-    printMa();
     placeFF();
 }
 
@@ -591,22 +588,24 @@ void FireRescue::carryHazmat(int slot, int hazmatSlot, int offset)
     ffMoves -=2;
     for (int i=0; i<3; i++){if (poiArray[i].location == ffArray[slot].location){poiArray[i].state = 1;}}    // flip any poi ran into while carrying a poi
     if (location < 10 || location > 69 || location % 10 == 0 || (location+1) % 10 == 0)
-    {hazmatArray[hazmatSlot] = 100;}
+        {hazmatArray[hazmatSlot] = 100;}
     else
-    {hazmatArray[hazmatSlot] = location;}   
+        {hazmatArray[hazmatSlot] = location;}   
 }
 
 
 void FireRescue::refreshBoard()
 {
+    int lableSlot = 1;
+    std::cout << "\n";
     for (QLabel* label : labels)  
     {
-        if (label != nullptr) 
-        {
-            label->hide();
-            delete label;
-        }
+        std::cout << lableSlot << ":" << label << "\t";
+        if (lableSlot > 0 && lableSlot % 4 == 0){std::cout << "\n";}
+        if (label != nullptr) {label->hide();}
+        lableSlot ++;
     }
+    std::cout << "\n";
     labels.clear();
 
     int slot = 0;
@@ -697,7 +696,6 @@ void FireRescue::refreshBoard()
         hazmatLabel[i] = new QLabel(this);
         hazmatLabel[i]->setGeometry(QRect(392+(col*127), 5+(row*125), 60, 60));
         hazmatLabel[i]->setPixmap(hazmat);
-
         hazmatLabel[i]->show();
         labels.push_back(hazmatLabel[i]);
     } 
@@ -1169,9 +1167,9 @@ void FireRescue::gameOver()
 void FireRescue::resetGame()
 {
     m_theBoard.clearBoard();
-    /* the wall array is made up of ascending values for each wall segment and is static the map array is made 
-    up of hit point vales for these wall segments, wall = 2, door = 4 and these are damaged or opened during
-    game play */ 
+    /* the wall array is made up of ascending values for each wall segment and is used for reference
+    the map array is madeup of hit point vales for these wall segments, wall = 2, door = 4 and these 
+    are damaged or opened during game play */ 
     m_WallArray = MapCell::getWallArray();  
     m_MapArray = MapCell::getMapArray(); 
     for (int i=0; i<80; i++)
@@ -1197,22 +1195,22 @@ void FireRescue::resetGame()
     {
         for (int i=0; i<43; i++) {ui->cube[i]->setPixmap(QPixmap());} 
         for (int i=0; i<9; i++) {ui->door[i]->setPixmap(doorClosed);}
+        for (int i=0; i<12; i++)
+        {
+            if (i<3){poiArray[i].location = 100;}
+            if (i<4){hazmatArray[i] = 100;}
+            hotSpotArray[i] = 100;
+        }
         refreshBoard();
-        printMa();
+
+    }
+    if (hotSpots < 12)
+    {
+        for (int i=hotSpots; i<12; i++) {ui->hs[i]->setPixmap(QPixmap(hotSpot));}
     }
     for (const int& element : poiList) 
     {
         std::cout << element << " ";
     }
     setUpGameOn = true;
-}
-
-void FireRescue::printMa()
-{
-    for (int i=0; i<178; i++)
-    {
-        std::cout << m_MapArray[i]<< " ";
-        if (i % 21 == 0) {std::cout << "\n";}
-    }
-    std::cout<<"\n";
 }

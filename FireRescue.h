@@ -51,7 +51,6 @@ public:
     void placeNewPoi(int slot);
     void gameOver();
     void resetGame();
-    void printMa();
 
 private:
     Ui::FireRescue *ui;
@@ -116,10 +115,10 @@ private:
     struct ffStruct {int ff; int location; int moves;};
     ffStruct ffArray[6];
     struct poiStruct {int poi; int location; int state;};
-    int  hazmatArray[4] = {100, 100, 100, 100};
-    int  hotSpotArray[12] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
     poiStruct poiArray[3];
     poiStruct poiTemp;
+    int  hazmatArray[4] = {100, 100, 100, 100};
+    int  hotSpotArray[12] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
     QList<QLabel *> labels;
     Board m_theBoard;
 
