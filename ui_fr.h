@@ -1,11 +1,3 @@
-/********************************************************************************
-** Form generated from reading UI file 'FireRescue.ui'
-**
-** Created by: Qt User Interface Compiler version 6.5.1
-**
-** WARNING! All changes made in this file will be lost when recompiling UI file!
-********************************************************************************/
-
 #ifndef UI_FR_H
 #define UI_FR_H
 
@@ -96,11 +88,6 @@ public:
             for (int col=0; col<10; col++)
             {
                 int x = (row*10)+col;
-                /*centerDisk[x] = new QLabel(FireRescue); 
-                centerDisk[x]->setObjectName("centerDisk"+QString::number(x));
-                centerDisk[x]->setPixmap(QPixmap());
-                centerDisk[x]->setGeometry(QRect(378+(col*127), 35+(row*125), 60, 60));*/
-
                 leftUpperDisk[x] = new QLabel(FireRescue); 
                 leftUpperDisk[x]->setObjectName("leftUpperDisk"+QString::number(x));
                 leftUpperDisk[x]->setPixmap(QPixmap());
@@ -323,19 +310,19 @@ public:
         rbCarry->setObjectName("rbCarry");
         rbOpen->setObjectName("rbOpen");
         rbClose->setObjectName("rbClose");
- 
-        
 
         retranslateUi(FireRescue);
 
         QMetaObject::connectSlotsByName(FireRescue);
     } // setupUi
 
+
     void retranslateUi(QWidget *FireRescue)
     {
         FireRescue->setWindowTitle(QCoreApplication::translate("FireRescue", "FireRescue", nullptr));
     } // retranslateUi
 };
+
 
 namespace Ui {
     class FireRescue: public Ui_FireRescue {};

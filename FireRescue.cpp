@@ -18,6 +18,7 @@ FireRescue::FireRescue(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FireRescue)
 {
+    ui->setupUi(this);
     fire.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire2.png");
     smoke.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke2.png");
     hotSpot.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHotSpot.png");
@@ -67,7 +68,6 @@ FireRescue::FireRescue(QWidget *parent)
     blackCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
     Board m_theBoard = Board();
     resetGame();
-    ui->setupUi(this);
 }
 
 
