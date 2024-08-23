@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QRadioButton>
 #include <QPushButton>
+#include <QDir>
 
 /* win is 7 POI rescued, loss is 4 POI lost or building collapse 24 damage markers*/
 
@@ -19,53 +20,41 @@ FireRescue::FireRescue(QWidget *parent)
     , ui(new Ui::FireRescue)
 {
     ui->setupUi(this);
-    fire.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sFire2.png");
-    smoke.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sSmoke2.png");
-    hotSpot.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHotSpot.png");
-    hazmat.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sHazmat.png");
-    doorOpen.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorOpen.png");
-    doorClosed.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sDoorClosed.png");
+    QString appDir = QCoreApplication::applicationDirPath();
+    QString assetPath = QDir::cleanPath(appDir + QDir::separator() + "pngs") + QDir::separator();
+    fire.load(assetPath + "sFire2.png");
+    smoke.load(assetPath + "sSmoke2.png");
+    hotSpot.load(assetPath + "sHotSpot.png");
+    hazmat.load(assetPath + "sHazmat.png");
+    doorOpen.load(assetPath + "sDoorOpen.png");
+    doorClosed.load(assetPath + "sDoorClosed.png");
+ 
+    poi[0].load(assetPath + "sPOIblank.png");
+    for(int i=1; i<11; i++)
+    {
+        poi[i].load(assetPath + "spoi" + QString::number(i)  + ".png");
+    }
+    poi[11].load(assetPath + "spoi0.png");
 
-    poi[11].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi0.png");
+    ff[0].load(assetPath + "ffB.png");
+    ff[1].load(assetPath + "ffG.png");
+    ff[2].load(assetPath + "ffR.png");
+    ff[3].load(assetPath + "ffO.png");
+    ff[4].load(assetPath + "ffY.png");
+    ff[5].load(assetPath + "ffW.png");
 
-    poi[1].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi1.png");
-    poi[2].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi2.png");
-    poi[3].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi3.png");
-    poi[4].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi4.png");
-    poi[5].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi5.png");
-    poi[6].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi6.png");
-    poi[7].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi7.png");
-    poi[8].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi8.png");
-    poi[9].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi9.png");
-    poi[10].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/spoi10.png");
+    for(int i=1; i<7; i++)
+    {
+        D6[i]= QPixmap(assetPath + "r" + QString::number(i) + ".png");
+    }
 
-    poi[0].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/sPOIblank.png");
+    for(int i=1; i<9; i++)
+    {
+        D8[i]= QPixmap(assetPath + "b" + QString::number(i) + ".png");
+    }
 
-    ff[0].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffB.png");
-    ff[1].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffG.png");
-    ff[2].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffR.png");
-    ff[3].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffO.png");
-    ff[4].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffY.png");
-    ff[5].load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/ffW.png");
-
-    D6[1] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r1.png");
-    D6[2] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r2.png");
-    D6[3] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r3.png");
-    D6[4] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r4.png");
-    D6[5] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r5.png");
-    D6[6] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/r6.png");
-
-    D8[1] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b1.png");
-    D8[2] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b2.png");
-    D8[3] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b3.png");
-    D8[4] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b4.png");
-    D8[5] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b5.png");
-    D8[6] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b6.png");
-    D8[7] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b7.png");
-    D8[8] = QPixmap("/Users/scottmiller/VSC/CPP/FireRescue/Resources/b8.png");
-
-    greyCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/greyCube.png");
-    blackCube.load("/Users/scottmiller/VSC/CPP/FireRescue/Resources/blackCube.png");
+    greyCube.load(assetPath + "greyCube.png");
+    blackCube.load(assetPath + "blackCube.png");
     Board m_theBoard = Board();
     resetGame();
 }
@@ -120,8 +109,9 @@ void FireRescue::setUpGame()
     for (int i=0; i<3; i++) 
     {
         int poiValue = poiList.back();
+        std::cout << "POI " << std::to_string(i) << " = " << std::to_string(poiValue) << std::endl; 
         poiList.pop_back();
-        poiArray[i] = {poiValue,100,0};
+        poiArray[i] = {poiValue,100,0};  // poi, location, state
     }
 
     for (int startUpSequence=0; startUpSequence<13; startUpSequence++)
@@ -571,11 +561,11 @@ void FireRescue::carryPoi(int slot, int poiSlot, int offset)
             }
         }
         textUpdate();
-        if (poiSaved > 0)
+        if (poiSaved > 6)
         {
             ui->label->setVisible(true);
-            ui->label->setText("WIN!!!");
-            ui->information->setText("Nice job you saved seven people!");
+            ui->label->setText("WIN, You Saved 7!");
+            ui->information->setText("Nice job you saved seven!");
             gameOver();
         }
     }
@@ -750,6 +740,7 @@ void FireRescue::makePoiLabel(int slot, int multPoi)
     {poiExtra[slot]->setPixmap(poi[11]);}
     else
     {poiExtra[slot]->setPixmap(poi[poiArray[slot].poi]);}
+    std::cout << "Poi is " << std::to_string(poiArray[slot].poi) << std::endl;
     poiExtra[slot]->show();
     labels.push_back(poiExtra[slot]);
 }
@@ -895,10 +886,10 @@ void FireRescue::placeFire(int location)
                 if (poiArray[i].poi != 0)
                 {
                     poiLost++;
-                    if (poiLost > 0)
+                    if (poiLost > 4)
                     {
                         ui->label->setVisible(true);
-                        ui->label->setText("Loss");
+                        ui->label->setText("Loss, Four Casualties");
                         ui->information->setText("Too many people lost!");
                         gameOver();
                     }
@@ -1100,10 +1091,10 @@ void FireRescue::shockWave(int direction, int location)
 void FireRescue::damageWall(int direction, int location, int base)
 {
     wallDamage ++;
-    if (wallDamage > 21)
+    if (wallDamage > 23)
     {
         ui->label->setVisible(true);
-        ui->label->setText("Loss");
+        ui->label->setText("Loss Building Destroyed");
         ui->information->setText("The building collapsed!!");
         gameOver();
     }

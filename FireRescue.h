@@ -63,7 +63,6 @@ private:
     QPixmap doorOpen;
     QPixmap doorClosed;
     QPixmap poi[12];
-    QPixmap poiBlank;
     QPixmap ff[6];
     QPixmap greyCube;
     QPixmap blackCube;
